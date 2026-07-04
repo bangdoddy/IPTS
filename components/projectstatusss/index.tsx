@@ -1797,7 +1797,7 @@ export function Home() {
                       variant="outline"
                       size="sm"
                       onClick={handleViewSsPdf}
-                      disabled={!canViewSs || isfromInject}
+                      disabled={!canViewSs || hasTemplatePdf}
                       title={!hasTemplatePdf ? "documentTemplateBase64 belum tersedia." : undefined}
                     >
                       <FileText className="w-4 h-4 mr-2" />
@@ -1809,7 +1809,7 @@ export function Home() {
                       variant="default"
                       size="sm"
                       onClick={handleDownloadSsPdf}
-                      disabled={!canDownloadSs || isfromInject}
+                      disabled={!canDownloadSs || hasTemplatePdf}
                       title={!hasTemplatePdf ? "documentTemplateBase64 belum tersedia." : undefined}
                     >
                       <Download className="w-4 h-4 mr-2" />
