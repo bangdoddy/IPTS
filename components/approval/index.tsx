@@ -671,6 +671,24 @@ function prettifyKey(key: string) {
 
 function formatCellValue(v: any) {
   if (v === null || v === undefined || v === "") return "-";
+  if (Array.isArray(v)) {
+    return v
+      .map((item) => {
+        if (item && typeof item === "object") {
+          return item.typeName || item.typeCode || item.TypeName || item.TypeCode || JSON.stringify(item);
+        }
+        return String(item);
+      })
+      .filter(Boolean)
+      .join(", ");
+  }
+  if (typeof v === "object") {
+    try {
+      return JSON.stringify(v);
+    } catch {
+      return String(v);
+    }
+  }
   return String(v);
 }
 
@@ -1974,12 +1992,23 @@ export function Approval() {
       return;
     }
 
+    const lastStatus = ratingProject?.status ? String(ratingProject.status).trim() : "";
+    let processedItemKey = itemKey;
+    if (lastStatus.toLowerCase() === "review by bpi") {
+      if (processedItemKey.toUpperCase().startsWith("REQ")) {
+        processedItemKey = processedItemKey.slice(3);
+        if (processedItemKey.startsWith("/") || processedItemKey.startsWith("-") || processedItemKey.startsWith("_")) {
+          processedItemKey = processedItemKey.slice(1);
+        }
+      }
+    }
+
     const rolePlay = getRolePlayFromCookie(cookieSnapshot) || actorType || "REVIEWER";
     const createdBy = getCreatedByFromCookie(cookieSnapshot) || "SYSTEM";
 
     const payload = {
       action: 1,
-      itemKey,
+      itemKey: processedItemKey,
       rolePlay,
       kualitas: parseScore(scores.kualitas, SCORE_MAX.kualitas),
       reduksiBiaya: parseScore(scores.reduksiBiaya, SCORE_MAX.reduksiBiaya),

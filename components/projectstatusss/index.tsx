@@ -565,6 +565,24 @@ function normalizeValueForCompare(v: any) {
 
 function formatCellValue(v: any) {
   if (v === null || v === undefined || v === "") return "-";
+  if (Array.isArray(v)) {
+    return v
+      .map((item) => {
+        if (item && typeof item === "object") {
+          return item.typeName || item.typeCode || item.TypeName || item.TypeCode || JSON.stringify(item);
+        }
+        return String(item);
+      })
+      .filter(Boolean)
+      .join(", ");
+  }
+  if (typeof v === "object") {
+    try {
+      return JSON.stringify(v);
+    } catch {
+      return String(v);
+    }
+  }
   return String(v);
 }
 
