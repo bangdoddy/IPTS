@@ -15,6 +15,7 @@ import {
   Upload,
   List,
   User,
+  Rows,
 } from "lucide-react";
 
 import { Card } from "../ui/card";
@@ -799,10 +800,9 @@ function useSuggestionDetail(params: { suggestionRetrieveUrl: string; detailAbor
 
         const json = await postJson<ApiBaseResponse<SuggestionRetrieveData>>(suggestionRetrieveUrl, body, ac.signal);
         if (json?.responseCode && json.responseCode !== 200) throw new Error(json?.message ?? "API error");
-
+        console.log('Adalah: ', json?.data);
         const data = (json?.data ?? null) as SuggestionRetrieveData | null;
         if (!data) throw new Error("Detail data is empty.");
-        console.log(data);
         setDetailData(data);
       } catch (e: any) {
         if (e?.name === "AbortError") return;
@@ -864,6 +864,7 @@ function useScoringHistory(params: { scoringRetrieveUrl: string; scoringAbort: R
         const result = await fetchScoringHistory(scoringRetrieveUrl, itemKey, ac.signal);
         setRows(result.rows);
 
+        console.log('scoring: ', result.rows);
         if ((result as any).message) {
           setMessage((result as any).message);
           setMessageKind((result as any).kind ?? "info");
@@ -1136,7 +1137,8 @@ export function Home() {
 
   // Cek apakah data berasal dari injeksi excel ?
   const TotalScore = scoring.rows.reduce((sum, row) => sum + row.totalscore, 0);
-  const isfromInject = scoring.rows.length > 0 && TotalScore === 0;
+  const isImport = scoring.rows.reduce((sum, row) => sum + row.IsImport, 0);
+  const isfromInject = scoring.rows.length > 0 || isImport > 0;
 
   // Extract unique jobsites from itemKey (e.g., 'JAHO/01/2026/SS/0001' => 'JAHO')
   const jobsiteOptions = useMemo(() => {
@@ -1368,11 +1370,12 @@ export function Home() {
 
   const templateB64 = String(detail.detailData?.documentTemplateBase64 ?? "").trim();
   const hasTemplatePdf = !!templateB64;
+  const hasDocument = (!!detail.detailData?.documentCount);
   const templateMime = hasTemplatePdf ? guessMimeFromBase64(templateB64) : "";
   const templateExt = templateMime === "application/pdf" ? ".pdf" : "";
 
   const ssB64 = hasTemplatePdf ? templateB64 : "";
-  const canViewSs = !detail.detailLoading && !detail.detailError && !!detail.detailData && hasTemplatePdf;
+  const canViewSs = !detail.detailLoading && !detail.detailError && !!detail.detailData && hasDocument;
   const canDownloadSs = canViewSs;
 
   const handleViewUploadedDoc = useCallback(() => {
@@ -1815,7 +1818,7 @@ export function Home() {
                       variant="outline"
                       size="sm"
                       onClick={handleViewSsPdf}
-                      disabled={!canViewSs || hasTemplatePdf}
+                      disabled={!canViewSs || !isfromInject}
                       title={!hasTemplatePdf ? "documentTemplateBase64 belum tersedia." : undefined}
                     >
                       <FileText className="w-4 h-4 mr-2" />
@@ -1827,7 +1830,7 @@ export function Home() {
                       variant="default"
                       size="sm"
                       onClick={handleDownloadSsPdf}
-                      disabled={!canDownloadSs || hasTemplatePdf}
+                      disabled={!canDownloadSs || !isfromInject}
                       title={!hasTemplatePdf ? "documentTemplateBase64 belum tersedia." : undefined}
                     >
                       <Download className="w-4 h-4 mr-2" />
