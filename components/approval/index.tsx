@@ -2362,7 +2362,7 @@ export function Approval() {
                           type="button"
                           size="sm"
                           onClick={handleDownloadSsPdf}
-                          disabled={!hasTemplatePdf}
+                          disabled={!hasTemplatePdf || isfromInject}
                           title={!hasTemplatePdf ? "documentTemplateBase64 belum tersedia." : undefined}
                         >
                           <Download className="w-4 h-4 mr-2" />
