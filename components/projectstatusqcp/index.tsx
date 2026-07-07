@@ -1,5 +1,5 @@
-
 import React, { useCallback, useEffect, useState } from "react";
+import { format, parseISO } from "date-fns";
 import { Card, CardContent } from "../ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { Badge } from "../ui/badge";
@@ -39,6 +39,7 @@ interface QcpProject {
   id?: number;
   itemKey?: string;
   namaGroupQccp?: string;
+  temaQccp?: string;
   department?: string;
   section?: string;
   createdAt?: string;
@@ -56,6 +57,18 @@ interface QcpStep {
   status: string;
   tanggal: string;
   file?: string;
+}
+
+function formatDate(dateStr?: string) {
+  if (!dateStr) return "-";
+  try {
+    const d = dateStr.includes("T") ? parseISO(dateStr) : parseISO(`${dateStr}T00:00:00`);
+    return format(d, "dd-MM-yyyy");
+  } catch {
+    const d = new Date(dateStr);
+    if (!Number.isNaN(d.getTime())) return format(d, "dd-MM-yyyy");
+    return String(dateStr);
+  }
 }
 
 export default function ProjectStatusQcp() {
@@ -124,11 +137,11 @@ export default function ProjectStatusQcp() {
       // Map backend fields to FE QcpStep
       const data = Array.isArray(json?.data)
         ? json.data.map((s: any) => ({
-            step: s.step ?? s.Step ?? "",
-            status: s.status ?? s.Status ?? "",
-            tanggal: s.createdAt ?? s.CreatedAt ?? "",
-            file: s.fileDoc ?? s.FileDoc ? `${CONFIG.apiBaseUrl}/qcp/steps/${s.fileDoc ?? s.FileDoc}` : undefined,
-          }))
+          step: s.step ?? s.Step ?? "",
+          status: s.status ?? s.Status ?? "",
+          tanggal: s.createdAt ?? s.CreatedAt ?? "",
+          file: s.fileDoc ?? s.FileDoc ? `${CONFIG.apiBaseUrl}/qcp/steps/${s.fileDoc ?? s.FileDoc}` : undefined,
+        }))
         : [];
       setStepHistory(data);
     } catch {
@@ -150,46 +163,46 @@ export default function ProjectStatusQcp() {
         title="Historical Project QCP"
         subtitle="Riwayat proyek Quality Control Project"
       >
-          {error && <div className="text-sm text-red-600 mb-3">{error}</div>}
-          <StepFilterBar value={stepFilter} onChange={setStepFilter} steps={stepOptions} />
-          <HistoricalProjectTable>
-              <HistoricalProjectTableHeader />
-              <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center text-muted-foreground py-10">
-                      Loading...
-                    </TableCell>
-                  </TableRow>
-                ) : filteredRows.length ? (
-                  filteredRows.map((r, idx) => (
-                    <TableRow key={String(r.id ?? r.itemKey ?? idx)}>
-                      <TableCell className={historicalTableCell.no}>{idx + 1}</TableCell>
-                      <TableCell className={historicalTableCell.itemKey}>{r.itemKey}</TableCell>
-                      <TableCell className={historicalTableCell.judul}>
-                        <TruncatedReadMoreCell text={r.namaGroupQccp ?? "-"} />
-                      </TableCell>
-                      <TableCell className={historicalTableCell.leader}>
-                        {r.leader ?? "-"} ({r.leaderNrp ?? "-"})
-                      </TableCell>
-                      <TableCell className={historicalTableCell.status}><Badge variant="outline">{r.status ?? "-"}</Badge></TableCell>
-                      <TableCell className={historicalTableCell.step}>{r.step ?? "-"}</TableCell>
-                      <TableCell className={historicalTableCell.aksi}>
-                        <Button size="sm" variant="outline" onClick={() => handleOpenDetail(r)}>
-                          Detail
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center text-muted-foreground py-10">
-                      No data
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-          </HistoricalProjectTable>
+        {error && <div className="text-sm text-red-600 mb-3">{error}</div>}
+        <StepFilterBar value={stepFilter} onChange={setStepFilter} steps={stepOptions} />
+        <HistoricalProjectTable>
+          <HistoricalProjectTableHeader />
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center text-muted-foreground py-10">
+                  Loading...
+                </TableCell>
+              </TableRow>
+            ) : filteredRows.length ? (
+              filteredRows.map((r, idx) => (
+                <TableRow key={String(r.id ?? r.itemKey ?? idx)}>
+                  <TableCell className={historicalTableCell.no}>{idx + 1}</TableCell>
+                  <TableCell className={historicalTableCell.itemKey}>{r.itemKey}</TableCell>
+                  <TableCell className={historicalTableCell.judul}>
+                    <TruncatedReadMoreCell text={r.temaQccp ?? "-"} />
+                  </TableCell>
+                  <TableCell className={historicalTableCell.leader}>
+                    {r.leader ?? "-"} ({r.leaderNrp ?? "-"})
+                  </TableCell>
+                  <TableCell className={historicalTableCell.status}><Badge variant="outline">{r.status ?? "-"}</Badge></TableCell>
+                  <TableCell className={historicalTableCell.step}>{r.step ?? "-"}</TableCell>
+                  <TableCell className={historicalTableCell.aksi}>
+                    <Button size="sm" variant="outline" onClick={() => handleOpenDetail(r)}>
+                      Detail
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center text-muted-foreground py-10">
+                  No data
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </HistoricalProjectTable>
       </HistoricalProjectPageShell>
 
       {/* Detail QCP */}
@@ -201,7 +214,7 @@ export default function ProjectStatusQcp() {
                 <Badge variant="outline" style={{ backgroundColor: "#EE642E15", color: "#EE642E", borderColor: "#EE642E" }}>
                   QCP
                 </Badge>
-                <span>{detail.namaGroupQccp ?? detail.itemKey ?? "-"}</span>
+                <span>{detail.temaQccp ?? detail.itemKey ?? "-"}</span>
               </h2>
               <Button onClick={() => setDetail(null)} variant="ghost">✕</Button>
             </div>
@@ -269,7 +282,7 @@ export default function ProjectStatusQcp() {
                         <TableRow key={i}>
                           <TableCell>{s.step}</TableCell>
                           <TableCell>{s.status}</TableCell>
-                          <TableCell>{s.tanggal}</TableCell>
+                           <TableCell>{formatDate(s.tanggal)}</TableCell>
                           <TableCell>
                             {s.file ? (
                               <div className="flex gap-2">

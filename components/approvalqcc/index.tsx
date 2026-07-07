@@ -123,6 +123,8 @@ export function ApprovalQcc() {
       let nextStatus: string | undefined;
 
       if (stepStatus.toLowerCase() === "review judul - bpi") {
+        nextStatus = "Review judul - Fasilitator";
+      } else if (stepStatus.toLowerCase() === "review judul - fasilitator") {
         nextStatus = "Review judul - Atasan 1";
       } else if (stepStatus.toLowerCase() === "review judul - atasan 1") {
         if (itemKey.toUpperCase().includes("ADMO")) {
@@ -331,7 +333,6 @@ export function ApprovalQcc() {
                   <div className="text-sm text-muted-foreground">Tidak ada file</div>
                 )}
               </div>
-
               <div className="flex gap-2 justify-end">
                 <Button variant="outline" onClick={() => setDetail(null)} disabled={actionLoading}>
                   Tutup

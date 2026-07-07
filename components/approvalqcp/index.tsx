@@ -11,6 +11,7 @@ type ApprovalQcpRow = {
   id?: number;
   itemKey?: string;
   namaGroupQccp?: string;
+  temaQccp?: string;
   department?: string;
   section?: string;
   createdAt?: string;
@@ -105,6 +106,27 @@ export function ApprovalQcp() {
     setActionLoading(true);
     try {
       const step = Number(detail.step ?? 0);
+      const stepStatus = detail.stepStatus ? String(detail.stepStatus).trim() : "";
+      const itemKey = detail.itemKey ? String(detail.itemKey).trim() : "";
+
+      let nextStatus: string | undefined;
+
+      if (stepStatus.toLowerCase() === "review judul - bpi") {
+        nextStatus = "Review judul - Fasilitator";
+      } else if (stepStatus.toLowerCase() === "review judul - fasilitator") {
+        nextStatus = "Review judul - Atasan 1";
+      } else if (stepStatus.toLowerCase() === "review judul - atasan 1") {
+        if (itemKey.toUpperCase().includes("ADMO")) {
+          nextStatus = "Review judul - BPI Final";
+        } else {
+          nextStatus = "Review judul - Atasan 2";
+        }
+      } else if (stepStatus.toLowerCase() === "review judul - atasan 2") {
+        if (!itemKey.toUpperCase().includes("ADMO")) {
+          nextStatus = "Review judul - BPI Final";
+        }
+      }
+
       const resp = await fetch((API as any).QCP_STEP_APPROVE, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -112,6 +134,7 @@ export function ApprovalQcp() {
           ItemKey: detail.itemKey,
           Step: step,
           ApproveBy: leaderNrp,
+          NextStatus: nextStatus,
         }),
       });
       const json = (await resp.json().catch(() => ({}))) as ApiResponse<any>;
@@ -203,7 +226,7 @@ export function ApprovalQcp() {
                     <TableRow key={String(r.id ?? r.itemKey ?? idx)}>
                       <TableCell>{idx + 1}</TableCell>
                       <TableCell className="whitespace-nowrap">{r.itemKey}</TableCell>
-                      <TableCell>{r.namaGroupQccp ?? "-"}</TableCell>
+                      <TableCell>{r.temaQccp ?? "-"}</TableCell>
                       <TableCell className="whitespace-nowrap">
                         {r.leader ?? "-"} ({r.leaderNrp ?? "-"})
                       </TableCell>
@@ -252,7 +275,7 @@ export function ApprovalQcp() {
                 <Badge variant="outline" style={{ backgroundColor: "#EE642E15", color: "#EE642E", borderColor: "#EE642E" }}>
                   QCP
                 </Badge>
-                <span>{detail.namaGroupQccp ?? detail.itemKey ?? "-"}</span>
+                <span>{detail.temaQccp ?? detail.itemKey ?? "-"}</span>
               </h2>
               <Button onClick={() => setDetail(null)} variant="ghost">
                 ✕

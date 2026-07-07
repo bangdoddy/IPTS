@@ -97,6 +97,8 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
   const [loadingEmployeesCreator, setLoadingEmployeesCreator] = useState(false);
   const [loadingEmployeesSuperior, setLoadingEmployeesSuperior] = useState(false);
   const [loadingOrg, setLoadingOrg] = useState(false);
+  const [klasifikasiOptions, setKlasifikasiOptions] = useState<{ value: string; label: string }[]>([]);
+  const [loadingKlasifikasi, setLoadingKlasifikasi] = useState(false);
   const [lockedDepartment, setLockedDepartment] = useState("");
 
   const [formData, setFormData] = useState({
@@ -106,6 +108,7 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
     department: (user?.department ? [user.department] : []) as string[],
     section: '',
     namaGroupQCCP: '',
+    klasifikasi: '',
     fasilitatorNRP: '',
     fasilitator: '',
     fasilitatorDepartment: '',
@@ -115,31 +118,31 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
     leaderDepartment: '',
     leaderSection: '',
     members: Array(10).fill({ name: '', department: '', section: '', nrp: '' }),
-    
+
     // SASARAN QCP
     temaQCCP: '',
     kpiDidukung: '',
-    
+
     // PERNYATAAN MASALAH / PELUANG PERBAIKAN
     masalahPeluang1: '',
     masalahPeluang2: '',
     masalahPeluang3: '',
     masalahPeluang4: '',
-    
+
     // PERNYATAAN TARGET
     apaTargetnya: '',
     berapaTargetnya: '',
     kapanDicapai: '',
-    
+
     // KONDISI SEBELUM QCP
     kondisiSebelum: '',
-    
+
     supportingDocument: null as File | null
   });
 
   const [validationError, setValidationError] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
-  
+
   // Department search states
   const [departmentSearch, setDepartmentSearch] = useState('');
   const [showDepartmentSuggestions, setShowDepartmentSuggestions] = useState(false);
@@ -234,6 +237,40 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
     return () => ctrl.abort();
   }, []);
 
+  // Fetch Klasifikasi list
+  useEffect(() => {
+    const ctrl = new AbortController();
+    const fetchKlasifikasi = async () => {
+      try {
+        setLoadingKlasifikasi(true);
+        const url = resolveApiUrl(API.KLASIFIKASI_LIST);
+        if (!url) throw new Error("API.KLASIFIKASI_LIST is empty.");
+        const res = await fetch(url, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          signal: ctrl.signal,
+        });
+        const { json, text } = await readResponse(res);
+        if (!res.ok) throw new Error(json?.message ?? text ?? `HTTP ${res.status}`);
+
+        const dataList = json?.data || [];
+        const opts = dataList.map((item: any) => ({
+          value: String(item.id || item.Id),
+          label: String(item.classificationName || item.ClassificationName),
+        }));
+        setKlasifikasiOptions(opts);
+      } catch (err: any) {
+        if (err?.name === "AbortError") return;
+        console.error(err);
+      } finally {
+        setLoadingKlasifikasi(false);
+      }
+    };
+    fetchKlasifikasi();
+    return () => ctrl.abort();
+  }, []);
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -264,7 +301,7 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
       setShowDepartmentSuggestions(false);
       return;
     }
-    
+
     setFormData({ ...formData, department: [...formData.department, dept] });
     setDepartmentSearch('');
     setShowDepartmentSuggestions(false);
@@ -360,7 +397,7 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    
+
     if (file) {
       // Check file size (5MB = 5242880 bytes)
       if (file.size > 5242880) {
@@ -368,7 +405,7 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
         e.target.value = '';
         return;
       }
-      
+
       setFormData({ ...formData, supportingDocument: file });
       setValidationError('');
     }
@@ -376,13 +413,13 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validation: Must have minimum 2 departments
     if (formData.department.length < 2) {
       setValidationError('Please select minimum 2 departments');
       return;
     }
-    
+
     // Validation: Must have minimum 3 members
     const validMembers = formData.members.filter(m => m.name.trim() !== '');
     if (validMembers.length < 3) {
@@ -397,44 +434,45 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
     }
 
     //leader
-      const ctrl = new AbortController();
-      const url = resolveApiUrl((API as any).EMPLOYEE_RETRIEVE);
-      if (!url) throw new Error("API.EMPLOYEE_RETRIEVE is empty.");
-  
-      let leaderName = '';
-      let leaderDepartment = '';
-      let leaderSection = '';
-                          
-      try {
-        const res = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: 2, nrp: user?.nrp }),
-          credentials: "include",
-          signal: ctrl.signal,
-        });
-  
-        const { json, text } = await readResponse(res);
-        if (!res.ok) throw new Error(json?.message ?? text ?? `HTTP ${res.status}`);
-        if (!isSuccess(json, true)) {
-          const code = getApiCode(json);
-          throw new Error(json?.message || (code != null ? `Retrieve gagal (code: ${code})` : "Retrieve gagal"));
-        }
-  
-        const row = parseEmployeeRetrieve(json);
-        console.log("Employee retrieve result:", { json, row });
-        if (!row) throw new Error("Data employee tidak ditemukan.");
-        
-        setValidationError("");
-        leaderDepartment = row?.department || '-';
-        leaderSection = row?.section || '-';
-  
-      } finally {
-        setLoadingOrg(false);
+    const ctrl = new AbortController();
+    const url = resolveApiUrl((API as any).EMPLOYEE_RETRIEVE);
+    if (!url) throw new Error("API.EMPLOYEE_RETRIEVE is empty.");
+
+    let leaderName = '';
+    let leaderDepartment = '';
+    let leaderSection = '';
+
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: 2, nrp: user?.nrp }),
+        credentials: "include",
+        signal: ctrl.signal,
+      });
+
+      const { json, text } = await readResponse(res);
+      if (!res.ok) throw new Error(json?.message ?? text ?? `HTTP ${res.status}`);
+      if (!isSuccess(json, true)) {
+        const code = getApiCode(json);
+        throw new Error(json?.message || (code != null ? `Retrieve gagal (code: ${code})` : "Retrieve gagal"));
       }
+
+      const row = parseEmployeeRetrieve(json);
+      console.log("Employee retrieve result:", { json, row });
+      if (!row) throw new Error("Data employee tidak ditemukan.");
+
+      setValidationError("");
+      leaderDepartment = row?.department || '-';
+      leaderSection = row?.section || '-';
+
+    } finally {
+      setLoadingOrg(false);
+    }
 
     const payload = {
       ...formData,
+      klasifikasi: formData.klasifikasi,
       leaderNRP: user?.nrp,
       leader: user?.nama,
       leaderDepartment: leaderDepartment,
@@ -517,7 +555,7 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
               <div className="mb-3 pb-2 border-b">
                 <h4 className="text-xs sm:text-sm">DATA TEAM QCP</h4>
               </div>
-              
+
               <div className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className="space-y-2">
@@ -563,9 +601,9 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
                         {/* Display selected departments as badges */}
                         <div className="flex flex-wrap gap-2 mb-2">
                           {formData.department.map((dept, index) => (
-                            <Badge 
+                            <Badge
                               key={index}
-                              variant="secondary" 
+                              variant="secondary"
                               className="flex items-center gap-1 px-3 py-1"
                               style={{ background: 'linear-gradient(135deg, #006187 0%, #007B5F 100%)', color: 'white' }}
                             >
@@ -581,7 +619,7 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
                             </Badge>
                           ))}
                         </div>
-                        
+
                         {/* Search input - always visible */}
                         <Input
                           id="department"
@@ -589,12 +627,12 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
                             !lockedDepartment
                               ? "Pilih Pembuat Lokasi terlebih dahulu"
                               : formData.department.length >= 2
-                              ? "Maksimal 2 department"
-                              : masterDepartmentsLoading
-                              ? "Loading department..."
-                              : formData.department.length === 0
-                              ? "Search and add departments..."
-                              : "Add more departments..."
+                                ? "Maksimal 2 department"
+                                : masterDepartmentsLoading
+                                  ? "Loading department..."
+                                  : formData.department.length === 0
+                                    ? "Search and add departments..."
+                                    : "Add more departments..."
                           }
                           value={departmentSearch}
                           disabled={!lockedDepartment || formData.department.length >= 2 || masterDepartmentsLoading}
@@ -606,7 +644,7 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
                           className="text-sm border-0 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
                         />
                       </div>
-                      
+
                       {/* Suggestions dropdown */}
                       {showDepartmentSuggestions && filteredDepartments.length > 0 && (
                         <div className="absolute z-50 w-full mt-1 bg-card border rounded-md shadow-lg max-h-60 overflow-auto">
@@ -624,7 +662,7 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
                             ))}
                         </div>
                       )}
-                      
+
                       {/* Counter indicator */}
                       <p className={`text-xs mt-1 ${formData.department.length >= 2 ? 'text-green-600' : 'text-red-600'}`}>
                         {formData.department.length} department(s) selected
@@ -632,11 +670,31 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
                       </p>
                     </div>
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="klasifikasi" className="text-xs sm:text-sm">4. Klasifikasi *</Label>
+                    <SelectReact<{ value: string; label: string }, false>
+                      inputId="klasifikasi"
+                      isClearable
+                      isLoading={loadingKlasifikasi}
+                      options={klasifikasiOptions}
+                      placeholder={loadingKlasifikasi ? "Loading..." : "Pilih Klasifikasi"}
+                      value={klasifikasiOptions.find(o => o.label === formData.klasifikasi) || null}
+                      onChange={(opt) => setFormData({ ...formData, klasifikasi: opt?.label || "" })}
+                      className="text-sm"
+                      classNamePrefix="rs"
+                      styles={{
+                        control: (base) => ({ ...base, minHeight: 36, borderRadius: 6 }),
+                        valueContainer: (base) => ({ ...base, padding: "0 10px" }),
+                        input: (base) => ({ ...base, margin: 0, padding: 0 }),
+                        indicatorsContainer: (base) => ({ ...base, height: 36 }),
+                      }}
+                    />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="section" className="text-xs sm:text-sm">4. Section *</Label>
+                    <Label htmlFor="section" className="text-xs sm:text-sm">5. Section *</Label>
                     <Input
                       id="section"
                       value={formData.section}
@@ -713,7 +771,7 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
                         }}
                       />
                     </div>
-                    
+
                     {/* Details Row */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                       <Input
@@ -795,7 +853,7 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
                         }}
                       />
                     </div>
-                    
+
                     {/* Details Row */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                       <Input
@@ -827,7 +885,7 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
                 {/* Members Section */}
                 <div className="space-y-2">
                   <Label className="text-xs sm:text-sm">7. Anggota + NRP (Minimum 3 required) *</Label>
-                  
+
                   {/* Search and Insert Section */}
                   <div className="border rounded-lg p-3 bg-background space-y-3">
                     <div className="flex gap-2">
@@ -895,7 +953,7 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
                           <span className="text-xs col-span-3">Section</span>
                           <span className="text-xs col-span-2">NRP</span>
                         </div>
-                        
+
                         {/* Table Rows */}
                         <div className="space-y-2">
                           {formData.members.map((member, index) => (
@@ -932,7 +990,7 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
                     </div>
 
                     <div className="mt-3 p-2 bg-card rounded border">
-                      <p className="text-xs text-muted-foreground">Total Members: 
+                      <p className="text-xs text-muted-foreground">Total Members:
                         <span className={`ml-2 ${formData.members.filter(m => m.name.trim()).length >= 3 ? 'text-green-600' : 'text-red-600'}`}>
                           {formData.members.filter(m => m.name.trim()).length}
                           {formData.members.filter(m => m.name.trim()).length >= 3 ? ' ✓' : ' (Minimum 3 required)'}
@@ -947,7 +1005,7 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
             {/* SASARAN QCP */}
             <div className="border rounded-lg p-3 sm:p-4 bg-card">
               <h4 className="text-xs sm:text-sm mb-3 uppercase">SASARAN QCP</h4>
-              
+
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="temaQCCP" className="text-xs sm:text-sm">1. Tema QCP *</Label>
@@ -980,7 +1038,7 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
             {/* PERNYATAAN MASALAH / PELUANG PERBAIKAN */}
             <div className="border rounded-lg p-3 sm:p-4 bg-card">
               <h4 className="text-xs sm:text-sm mb-3 uppercase">PERNYATAAN MASALAH / PELUANG PERBAIKAN</h4>
-              
+
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="masalahPeluang1" className="text-xs sm:text-sm">
@@ -1047,7 +1105,7 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
             {/* PERNYATAAN TARGET */}
             <div className="border rounded-lg p-3 sm:p-4 bg-card">
               <h4 className="text-xs sm:text-sm mb-3 uppercase">PERNYATAAN TARGET</h4>
-              
+
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="apaTargetnya" className="text-xs sm:text-sm">1. Apa targetnya? *</Label>

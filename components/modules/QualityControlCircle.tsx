@@ -63,6 +63,7 @@ interface FormState {
   lokasi: string;
   department: string;
   section: string;
+  Klasifikasi: string;
   namaGroupQCCP: string;
   fasilitatorNRP: string;
   fasilitator: string;
@@ -128,8 +129,10 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
   // Employee options for Creator (pembuat/anggota) and SUPERIOR (leader/fasilitator)
   const [employeeOptionsCreator, setEmployeeOptionsCreator] = useState<EmployeeOption[]>([]);
   const [employeeOptionsSuperior, setEmployeeOptionsSuperior] = useState<EmployeeOption[]>([]);
+  const [klasifikasiOptions, setKlasifikasiOptions] = useState<{ value: string; label: string }[]>([]);
   const [loadingEmployeesCreator, setLoadingEmployeesCreator] = useState(false);
   const [loadingEmployeesSuperior, setLoadingEmployeesSuperior] = useState(false);
+  const [loadingKlasifikasi, setLoadingKlasifikasi] = useState(false);
   const [loadingOrg, setLoadingOrg] = useState(false);
 
   const retrieveAbortRef = useRef<AbortController | null>(null);
@@ -139,6 +142,7 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
     lokasi: '',
     department: user?.department || '',
     section: '',
+    klasifikasi: '',
     namaGroupQCCP: '',
     fasilitatorNRP: '',
     fasilitator: '',
@@ -149,25 +153,25 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
     leaderDepartment: '',
     leaderSection: '',
     members: Array(10).fill({ name: '', department: '', section: '', nrp: '' }),
-    
+
     // SASARAN QCC
     temaQCCP: '',
     kpiDidukung: '',
-    
+
     // PERNYATAAN MASALAH / PELUANG PERBAIKAN
     masalahPeluang1: '',
     masalahPeluang2: '',
     masalahPeluang3: '',
     masalahPeluang4: '',
-    
+
     // PERNYATAAN TARGET
     apaTargetnya: '',
     berapaTargetnya: '',
     kapanDicapai: '',
-    
+
     // KONDISI SEBELUM QCC
     kondisiSebelum: '',
-    
+
     supportingDocument: null as File | null,
     CreatedBy: '',
   });
@@ -234,6 +238,40 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
     run();
     return () => ctrl.abort();
   }, []);
+
+  // Fetch Klasifikasi list
+  useEffect(() => {
+    const ctrl = new AbortController();
+    const fetchKlasifikasi = async () => {
+      try {
+        setLoadingKlasifikasi(true);
+        const url = resolveApiUrl(API.KLASIFIKASI_LIST);
+        if (!url) throw new Error("API.KLASIFIKASI_LIST is empty.");
+        const res = await fetch(url, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          signal: ctrl.signal,
+        });
+        const { json, text } = await readResponse(res);
+        if (!res.ok) throw new Error(json?.message ?? text ?? `HTTP ${res.status}`);
+
+        const dataList = json?.data || [];
+        const opts = dataList.map((item: any) => ({
+          value: String(item.id || item.Id),
+          label: String(item.classificationName || item.ClassificationName),
+        }));
+        setKlasifikasiOptions(opts);
+      } catch (err: any) {
+        if (err?.name === "AbortError") return;
+        console.error(err);
+      } finally {
+        setLoadingKlasifikasi(false);
+      }
+    };
+    fetchKlasifikasi();
+    return () => ctrl.abort();
+  }, []);
   const selectedEmployee = useMemo(
     () => employeeOptionsCreator.find((o) => o.value === formData.nrpSelected) ?? null,
     [employeeOptionsCreator, formData.nrpSelected]
@@ -254,7 +292,7 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
       // if (nama) setField("submittedByName", nama);
 
       try {
-        
+
         retrieveAbortRef.current?.abort();
         const ctrl = new AbortController();
         retrieveAbortRef.current = ctrl;
@@ -282,15 +320,16 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
           const row = parseEmployeeRetrieve(json);
           console.log("Employee retrieve result:", { json, row });
           if (!row) throw new Error("Data employee tidak ditemukan.");
-            setFormData(prev => ({ ...prev, 
-              nrpSelected: nrp,
-              CreatedBy: nrp,
-              lokasi: jobsite,
-              department: safeStr(row?.department, prev.department),
-              section: safeStr(row?.section, prev.section),
-              // CreatedBy: nrp,
-              // CreatedBy: nrp,
-            }));
+          setFormData(prev => ({
+            ...prev,
+            nrpSelected: nrp,
+            CreatedBy: nrp,
+            lokasi: jobsite,
+            department: safeStr(row?.department, prev.department),
+            section: safeStr(row?.section, prev.section),
+            // CreatedBy: nrp,
+            // CreatedBy: nrp,
+          }));
 
         } finally {
           setLoadingOrg(false);
@@ -332,7 +371,7 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
     }
 
     const employee = employeeDatabase.find(emp => emp.nrp === searchNRP);
-    
+
     if (!employee) {
       setValidationError(`Employee with NRP "${searchNRP}" not found in database`);
       return;
@@ -369,20 +408,20 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
     }
 
     const employee = employeeDatabase.find(emp => emp.nrp === formData.fasilitatorNRP);
-    
+
     if (!employee) {
       setValidationError(`Employee with NRP "${formData.fasilitatorNRP}" not found in database`);
-      setFormData({ 
-        ...formData, 
-        fasilitator: '', 
-        fasilitatorDepartment: '', 
-        fasilitatorSection: '' 
+      setFormData({
+        ...formData,
+        fasilitator: '',
+        fasilitatorDepartment: '',
+        fasilitatorSection: ''
       });
       return;
     }
 
-    setFormData({ 
-      ...formData, 
+    setFormData({
+      ...formData,
       fasilitator: employee.name,
       fasilitatorDepartment: employee.department,
       fasilitatorSection: employee.section
@@ -397,20 +436,20 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
     }
 
     const employee = employeeDatabase.find(emp => emp.nrp === formData.leaderNRP);
-    
+
     if (!employee) {
       setValidationError(`Employee with NRP "${formData.leaderNRP}" not found in database`);
-      setFormData({ 
-        ...formData, 
-        leader: '', 
-        leaderDepartment: '', 
-        leaderSection: '' 
+      setFormData({
+        ...formData,
+        leader: '',
+        leaderDepartment: '',
+        leaderSection: ''
       });
       return;
     }
 
-    setFormData({ 
-      ...formData, 
+    setFormData({
+      ...formData,
       leader: employee.name,
       leaderDepartment: employee.department,
       leaderSection: employee.section
@@ -420,7 +459,7 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    
+
     if (file) {
       // Check file size (5MB = 5242880 bytes)
       if (file.size > 5242880) {
@@ -428,7 +467,7 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
         e.target.value = '';
         return;
       }
-      
+
       setFormData({ ...formData, supportingDocument: file });
       setValidationError('');
     }
@@ -456,7 +495,7 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
     let leaderName = '';
     let leaderDepartment = '';
     let leaderSection = '';
-                        
+
     try {
       const res = await fetch(url, {
         method: "POST",
@@ -476,7 +515,7 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
       const row = parseEmployeeRetrieve(json);
       console.log("Employee retrieve result:", { json, row });
       if (!row) throw new Error("Data employee tidak ditemukan.");
-      
+
       setValidationError("");
       leaderDepartment = row?.department || '-';
       leaderSection = row?.section || '-';
@@ -487,6 +526,7 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
     // Prepare payload
     const payload = {
       ...formData,
+      klasifikasi: formData.klasifikasi,
       leaderNRP: user?.nrp,
       leader: user?.nama,
       leaderDepartment: leaderDepartment,
@@ -580,11 +620,11 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
               <div className="mb-3 pb-2 border-b">
                 <h4 className="text-xs sm:text-sm">DATA TEAM QCC</h4>
               </div>
-              
+
               <div className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                  <div className="sp  ace-y-2">
-                    <Label htmlFor="nrp" className="text-xs sm:text-sm">1. Pembuat Lokasi *</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="nrp" className="text-xs sm:text-sm">1. Pembuat *</Label>
                     <SelectReact<EmployeeOption, false>
                       inputId="nrp"
                       isClearable
@@ -616,7 +656,7 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="lokasi" className="text-xs sm:text-sm">-</Label>
+                    <Label htmlFor="lokasi" className="text-xs sm:text-sm">2. Lokasi *</Label>
                     <Input
                       id="lokasi"
                       value={formData.lokasi}
@@ -626,8 +666,11 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
                       placeholder="Lokasi akan terisi otomatis"
                     />
                   </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="department" className="text-xs sm:text-sm">2. Department *</Label>
+                    <Label htmlFor="department" className="text-xs sm:text-sm">3. Department *</Label>
                     <Input
                       id="department"
                       value={formData.department}
@@ -637,11 +680,32 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
                       placeholder="Department akan terisi otomatis"
                     />
                   </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="klasifikasi" className="text-xs sm:text-sm">4. Klasifikasi *</Label>
+                    <SelectReact<{ value: string; label: string }, false>
+                      inputId="klasifikasi"
+                      isClearable
+                      isLoading={loadingKlasifikasi}
+                      options={klasifikasiOptions}
+                      placeholder={loadingKlasifikasi ? "Loading..." : "Pilih Klasifikasi"}
+                      value={klasifikasiOptions.find(o => o.label === formData.klasifikasi) || null}
+                      onChange={(opt) => setFormData({ ...formData, klasifikasi: opt?.label || "" })}
+                      className="text-sm"
+                      classNamePrefix="rs"
+                      styles={{
+                        control: (base) => ({ ...base, minHeight: 36, borderRadius: 6 }),
+                        valueContainer: (base) => ({ ...base, padding: "0 10px" }),
+                        input: (base) => ({ ...base, margin: 0, padding: 0 }),
+                        indicatorsContainer: (base) => ({ ...base, height: 36 }),
+                      }}
+                    />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="section" className="text-xs sm:text-sm">3. Section *</Label>
+                    <Label htmlFor="section" className="text-xs sm:text-sm">5. Section *</Label>
                     <Input
                       id="section"
                       value={formData.section}
@@ -653,7 +717,7 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="namaGroupQCCP" className="text-xs sm:text-sm">5. Nama Group QCC *</Label>
+                    <Label htmlFor="namaGroupQCCP" className="text-xs sm:text-sm">6. Nama Group QCC *</Label>
                     <Input
                       id="namaGroupQCCP"
                       value={formData.namaGroupQCCP}
@@ -667,7 +731,7 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
 
                 {/* Fasilitator Section */}
                 <div className="space-y-2">
-                  <Label className="text-xs sm:text-sm">5. Fasilitator *</Label>
+                  <Label className="text-xs sm:text-sm">7. Fasilitator *</Label>
                   <div className="border rounded-lg p-3 bg-background space-y-3">
                     {/* NRP Search Row */}
                     <div className="flex gap-2">
@@ -679,7 +743,7 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
                         placeholder={loadingEmployeesSuperior ? "Loading..." : "Pilih NRP"}
                         value={employeeOptionsSuperior.find(o => o.value === formData.fasilitatorNRP) || null}
                         onChange={async (opt) => {
-                          
+
                           const ctrl = new AbortController();
                           const nrp = opt?.value || "";
                           const nama = safeStr(opt?.raw?.NAMA, "");
@@ -729,7 +793,7 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
                         }}
                       />
                     </div>
-                    
+
                     {/* Details Row */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                       <Input
@@ -772,7 +836,7 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
                         placeholder={loadingEmployeesSuperior ? "Loading..." : "Pilih NRP"}
                         value={employeeOptionsSuperior.find(o => o.value === formData.leaderNRP) || null}
                         onChange={async (opt) => {
-                          
+
                           const ctrl = new AbortController();
                           const nrp = opt?.value || "";
                           const nama = safeStr(opt?.raw?.NAMA, "");
@@ -822,7 +886,7 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
                         }}
                       />
                     </div>
-                    
+
                     {/* Details Row */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                       <Input
@@ -853,8 +917,8 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
 
                 {/* Members Section */}
                 <div className="space-y-2">
-                  <Label className="text-xs sm:text-sm">7. Anggota + NRP (Minimum 3 required) *</Label>
-                  
+                  <Label className="text-xs sm:text-sm">8. Anggota + NRP (Minimum 3 required) *</Label>
+
                   {/* Search and Insert Section */}
                   <div className="border rounded-lg p-3 bg-background space-y-3">
                     <div className="flex gap-2">
@@ -942,7 +1006,7 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
                           <span className="text-xs col-span-3">Section</span>
                           <span className="text-xs col-span-2">NRP</span>
                         </div>
-                        
+
                         {/* Table Rows */}
                         <div className="space-y-2">
                           {formData.members.map((member, index) => (
@@ -979,7 +1043,7 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
                     </div>
 
                     <div className="mt-3 p-2 bg-card rounded border">
-                      <p className="text-xs text-muted-foreground">Total Members: 
+                      <p className="text-xs text-muted-foreground">Total Members:
                         <span className={`ml-2 ${formData.members.filter(m => m.name.trim()).length >= 3 ? 'text-green-600' : 'text-red-600'}`}>
                           {formData.members.filter(m => m.name.trim()).length}
                           {formData.members.filter(m => m.name.trim()).length >= 3 ? ' ✓' : ' (Minimum 3 required)'}
@@ -994,7 +1058,7 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
             {/* SASARAN QCC */}
             <div className="border rounded-lg p-3 sm:p-4 bg-card">
               <h4 className="text-xs sm:text-sm mb-3 uppercase">SASARAN QCC</h4>
-              
+
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="temaQCCP" className="text-xs sm:text-sm">1. Tema QCC *</Label>
@@ -1027,7 +1091,7 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
             {/* PERNYATAAN MASALAH / PELUANG PERBAIKAN */}
             <div className="border rounded-lg p-3 sm:p-4 bg-card">
               <h4 className="text-xs sm:text-sm mb-3 uppercase">PERNYATAAN MASALAH / PELUANG PERBAIKAN</h4>
-              
+
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="masalahPeluang1" className="text-xs sm:text-sm">
@@ -1094,7 +1158,7 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
             {/* PERNYATAAN TARGET */}
             <div className="border rounded-lg p-3 sm:p-4 bg-card">
               <h4 className="text-xs sm:text-sm mb-3 uppercase">PERNYATAAN TARGET</h4>
-              
+
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="apaTargetnya" className="text-xs sm:text-sm">1. Apa targetnya? *</Label>

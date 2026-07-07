@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { format, parseISO } from "date-fns";
 import { Card, CardContent } from "../ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { Badge } from "../ui/badge";
@@ -38,6 +39,7 @@ interface QccProject {
   id?: number;
   itemKey?: string;
   namaGroupQccp?: string;
+  temaQccp?: string;
   department?: string;
   section?: string;
   createdAt?: string;
@@ -56,6 +58,18 @@ interface QccStep {
   file?: string;
 }
 
+function formatDate(dateStr?: string) {
+  if (!dateStr) return "-";
+  try {
+    const d = dateStr.includes("T") ? parseISO(dateStr) : parseISO(`${dateStr}T00:00:00`);
+    return format(d, "dd-MM-yyyy");
+  } catch {
+    const d = new Date(dateStr);
+    if (!Number.isNaN(d.getTime())) return format(d, "dd-MM-yyyy");
+    return String(dateStr);
+  }
+}
+
 export default function ProjectStatusQcc() {
   const loginNrp = useLoginNrp();
   const [refreshKey] = useState(0);
@@ -67,6 +81,9 @@ export default function ProjectStatusQcc() {
   const [stepLoading, setStepLoading] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [pdfOpen, setPdfOpen] = useState(false);
+  const [selectedUploadFile, setSelectedUploadFile] = useState<File | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [actionError, setActionError] = useState("");
 
   const { stepFilter, setStepFilter, stepOptions, filteredRows } = useStepFilter(rows);
 
@@ -89,6 +106,7 @@ export default function ProjectStatusQcc() {
       });
       const json = await resp.json();
       setRows(Array.isArray(json?.data) ? json.data : []);
+      console.log(json.data);
     } catch (e: any) {
       setError(e?.message || "Gagal load QCC");
       setRows([]);
@@ -121,7 +139,7 @@ export default function ProjectStatusQcc() {
       const data = Array.isArray(json?.data) ? json.data.map((s: any) => ({
         step: s.step ?? s.Step ?? "",
         status: s.status ?? s.Status ?? "",
-        tanggal: s.createdAt ?? s.CreatedAt ?? "",
+        tanggal: formatDate(s.createdAt ?? s.CreatedAt ?? ""),
         file: s.fileDoc ?? s.FileDoc ? `${CONFIG.apiBaseUrl}/qcc/steps/${s.fileDoc ?? s.FileDoc}` : undefined,
       })) : [];
       setStepHistory(data);
@@ -131,6 +149,42 @@ export default function ProjectStatusQcc() {
       setStepLoading(false);
     }
   }, []);
+
+  const handleUploadStepFile = useCallback(async () => {
+    if (!detail || !selectedUploadFile) return;
+    setActionError("");
+    setActionLoading(true);
+    try {
+      const isJudulApproved = detail.stepStatus?.toLowerCase() === "judul approved";
+      const targetStep = isJudulApproved ? 1 : Number(detail.step ?? 0) + 1;
+      const formData = new FormData();
+      formData.append("ItemKey", detail.itemKey || "");
+      formData.append("Step", String(targetStep));
+      formData.append("Desc", detail.temaQccp || "");
+      formData.append("FileDoc", selectedUploadFile);
+      formData.append("CreatedBy", loginNrp || "");
+
+      const resp = await fetch(API.QCC_STEP_CREATE, {
+        method: "POST",
+        body: formData,
+      });
+      const json = await resp.json().catch(() => ({}));
+      const code = Number(json?.responseCode ?? resp.status);
+      if (code !== 200) throw new Error(json?.message ?? "Gagal upload file");
+
+      setSelectedUploadFile(null);
+      // Clear file inputs on page
+      const fileInputs = document.querySelectorAll('input[type="file"]') as NodeListOf<HTMLInputElement>;
+      fileInputs.forEach(input => { input.value = ''; });
+
+      setDetail(null);
+      await fetchList();
+    } catch (e: any) {
+      setActionError(e?.message || "Gagal upload file");
+    } finally {
+      setActionLoading(false);
+    }
+  }, [detail, selectedUploadFile, loginNrp, fetchList]);
 
   // Handle open detail
   const handleOpenDetail = (row: QccProject) => {
@@ -144,46 +198,46 @@ export default function ProjectStatusQcc() {
         title="Historical Project QCC"
         subtitle="Riwayat proyek Quality Control Circle"
       >
-          {error && <div className="text-sm text-red-600 mb-3">{error}</div>}
-          <StepFilterBar value={stepFilter} onChange={setStepFilter} steps={stepOptions} />
-          <HistoricalProjectTable>
-              <HistoricalProjectTableHeader />
-              <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center text-muted-foreground py-10">
-                      Loading...
-                    </TableCell>
-                  </TableRow>
-                ) : filteredRows.length ? (
-                  filteredRows.map((r, idx) => (
-                    <TableRow key={String(r.id ?? r.itemKey ?? idx)}>
-                      <TableCell className={historicalTableCell.no}>{idx + 1}</TableCell>
-                      <TableCell className={historicalTableCell.itemKey}>{r.itemKey}</TableCell>
-                      <TableCell className={historicalTableCell.judul}>
-                        <TruncatedReadMoreCell text={r.namaGroupQccp ?? "-"} />
-                      </TableCell>
-                      <TableCell className={historicalTableCell.leader}>
-                        {r.leader ?? "-"} ({r.leaderNrp ?? "-"})
-                      </TableCell>
-                      <TableCell className={historicalTableCell.status}><Badge variant="outline">{r.status ?? "-"}</Badge></TableCell>
-                      <TableCell className={historicalTableCell.step}>{r.step ?? "-"}</TableCell>
-                      <TableCell className={historicalTableCell.aksi}>
-                        <Button size="sm" variant="outline" onClick={() => handleOpenDetail(r)}>
-                          Detail
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center text-muted-foreground py-10">
-                      No data
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-          </HistoricalProjectTable>
+        {error && <div className="text-sm text-red-600 mb-3">{error}</div>}
+        <StepFilterBar value={stepFilter} onChange={setStepFilter} steps={stepOptions} />
+        <HistoricalProjectTable>
+          <HistoricalProjectTableHeader />
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center text-muted-foreground py-10">
+                  Loading...
+                </TableCell>
+              </TableRow>
+            ) : filteredRows.length ? (
+              filteredRows.map((r, idx) => (
+                <TableRow key={String(r.id ?? r.itemKey ?? idx)}>
+                  <TableCell className={historicalTableCell.no}>{idx + 1}</TableCell>
+                  <TableCell className={historicalTableCell.itemKey}>{r.itemKey}</TableCell>
+                  <TableCell className={historicalTableCell.judul}>
+                    <TruncatedReadMoreCell text={r.temaQccp ?? "-"} />
+                  </TableCell>
+                  <TableCell className={historicalTableCell.leader}>
+                    {r.leader ?? "-"} ({r.leaderNrp ?? "-"})
+                  </TableCell>
+                  <TableCell className={historicalTableCell.status}><Badge variant="outline">{r.status ?? "-"}</Badge></TableCell>
+                  <TableCell className={historicalTableCell.step}>{r.step ?? "-"}</TableCell>
+                  <TableCell className={historicalTableCell.aksi}>
+                    <Button size="sm" variant="outline" onClick={() => handleOpenDetail(r)}>
+                      Detail
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center text-muted-foreground py-10">
+                  No data
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </HistoricalProjectTable>
       </HistoricalProjectPageShell>
 
       {/* Detail QCC */}
@@ -195,7 +249,7 @@ export default function ProjectStatusQcc() {
                 <Badge variant="outline" style={{ backgroundColor: "#EE642E15", color: "#EE642E", borderColor: "#EE642E" }}>
                   QCC
                 </Badge>
-                <span>{detail.namaGroupQccp ?? detail.itemKey ?? "-"}</span>
+                <span>{detail.temaQccp ?? detail.itemKey ?? "-"}</span>
               </h2>
               <Button onClick={() => setDetail(null)} variant="ghost">✕</Button>
             </div>
@@ -262,7 +316,7 @@ export default function ProjectStatusQcc() {
                         <TableRow key={i}>
                           <TableCell>{s.step}</TableCell>
                           <TableCell>{s.status}</TableCell>
-                          <TableCell>{s.tanggal}</TableCell>
+                          <TableCell>{formatDate(s.tanggal)}</TableCell>
                           <TableCell>
                             {s.file ? (
                               <div className="flex gap-2">
@@ -294,6 +348,45 @@ export default function ProjectStatusQcc() {
                   </Table>
                 )}
               </div>
+
+              {(() => {
+                const isJudulApproved = detail.stepStatus?.toLowerCase() === "judul approved";
+                const targetStep = isJudulApproved ? 1 : Number(detail.step ?? 0) + 1;
+                const showUpload = (isJudulApproved || detail.stepStatus?.toLowerCase() === "approved") && targetStep <= 8;
+
+                if (!showUpload) return null;
+
+                return (
+                  <div className="border border-orange-200 rounded-lg p-4 bg-orange-50/50 space-y-3 mt-4">
+                    <div className="font-semibold text-orange-800">Upload Dokumen Step {targetStep}</div>
+                    <div className="flex flex-col sm:flex-row gap-2 items-center">
+                      <input
+                        type="file"
+                        accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0] || null;
+                          setSelectedUploadFile(file);
+                        }}
+                        className="block w-full text-sm text-slate-500
+                          file:mr-4 file:py-2 file:px-4
+                          file:rounded-full file:border-0
+                          file:text-sm file:font-semibold
+                          file:bg-orange-50 file:text-orange-700
+                          hover:file:bg-orange-100"
+                      />
+                      <Button
+                        onClick={handleUploadStepFile}
+                        disabled={!selectedUploadFile || actionLoading}
+                        style={{ backgroundColor: "#EE642E", color: "#fff" }}
+                      >
+                        {actionLoading ? "Uploading..." : "Upload File"}
+                      </Button>
+                    </div>
+                    {actionError && <div className="text-xs text-red-600">{actionError}</div>}
+                  </div>
+                );
+              })()}
+
               <div className="flex gap-2 justify-end">
                 <Button variant="outline" onClick={() => setDetail(null)}>
                   Tutup
