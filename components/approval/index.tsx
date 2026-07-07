@@ -2579,7 +2579,7 @@ export function Approval() {
                       {otherFields.map((f) => (
                         <div key={f.key} className="p-3 rounded-lg border bg-muted/20">
                           <div className="text-xs text-muted-foreground">{f.label}</div>
-                          <div className="text-sm mt-1 whitespace-pre-wrap">{String(f.value)}</div>
+                          <div className="text-sm mt-1 whitespace-pre-wrap">{formatCellValue(f.value)}</div>
                         </div>
                       ))}
                     </div>
@@ -2656,13 +2656,7 @@ export function Approval() {
                   >
                     Beri Penilaian
                   </Button>
-                  <Button
-                    variant="outline"
-                    style={{ backgroundColor: '#3450acff', color: 'white', borderColor: '#1c46b9ff' }}
-                    disabled={detailLoading || !selectedProject?.itemKey}
-                  >
-                    Setujui
-                  </Button>
+
                   <Button
                     variant="destructive"
                     style={{ backgroundColor: '#dc2626', color: 'white', borderColor: '#b91c1c' }}

@@ -11,6 +11,7 @@ type ApprovalQccRow = {
   id?: number;
   itemKey?: string;
   namaGroupQccp?: string;
+  temaQccp?: string;
   department?: string;
   section?: string;
   createdAt?: string;
@@ -49,8 +50,18 @@ function getLoginNrp() {
   }
 }
 
+function getLoginJobsite() {
+  try {
+    const c = getCookieJson<any>("inovasis_auth");
+    return c?.jobsite ?? c?.Jobsite ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export function ApprovalQcc() {
   const leaderNrp = useMemo(() => getLoginNrp(), []);
+  const jobsite = useMemo(() => getLoginJobsite(), []);
   const [rows, setRows] = useState<ApprovalQccRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -72,9 +83,10 @@ export function ApprovalQcc() {
       const resp = await fetch(API.QCC_APPROVAL_LIST, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ LeaderNrp: String(leaderNrp) }),
+        body: JSON.stringify({ LeaderNrp: String(leaderNrp), jobsite: jobsite }),
       });
       const json = (await resp.json().catch(() => ({}))) as ApiResponse<ApprovalQccRow[]>;
+      console.log('xxx: ', json.data);
       const code = Number(json?.responseCode ?? resp.status);
       if (code !== 200) throw new Error(json?.message ?? "Gagal load approval QCC");
       setRows(Array.isArray(json?.data) ? json.data : []);
@@ -105,6 +117,25 @@ export function ApprovalQcc() {
     setActionLoading(true);
     try {
       const step = Number(detail.step ?? 0);
+      const stepStatus = detail.stepStatus ? String(detail.stepStatus).trim() : "";
+      const itemKey = detail.itemKey ? String(detail.itemKey).trim() : "";
+
+      let nextStatus: string | undefined;
+
+      if (stepStatus.toLowerCase() === "review judul - bpi") {
+        nextStatus = "Review judul - Atasan 1";
+      } else if (stepStatus.toLowerCase() === "review judul - atasan 1") {
+        if (itemKey.toUpperCase().includes("ADMO")) {
+          nextStatus = "Review judul - BPI Final";
+        } else {
+          nextStatus = "Review judul - Atasan 2";
+        }
+      } else if (stepStatus.toLowerCase() === "review judul - atasan 2") {
+        if (!itemKey.toUpperCase().includes("ADMO")) {
+          nextStatus = "Review judul - BPI Final";
+        }
+      }
+
       const resp = await fetch(API.QCC_STEP_APPROVE, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -112,6 +143,7 @@ export function ApprovalQcc() {
           ItemKey: detail.itemKey,
           Step: step,
           ApproveBy: leaderNrp,
+          NextStatus: nextStatus,
         }),
       });
       const json = (await resp.json().catch(() => ({}))) as ApiResponse<any>;
@@ -183,7 +215,7 @@ export function ApprovalQcc() {
                 <TableRow>
                   <TableHead>No</TableHead>
                   <TableHead>ItemKey</TableHead>
-                  <TableHead>Judul</TableHead>
+                  <TableHead>Tema QCC</TableHead>
                   <TableHead>Leader</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Step</TableHead>
@@ -203,7 +235,7 @@ export function ApprovalQcc() {
                     <TableRow key={String(r.id ?? r.itemKey ?? idx)}>
                       <TableCell>{idx + 1}</TableCell>
                       <TableCell className="whitespace-nowrap">{r.itemKey}</TableCell>
-                      <TableCell>{r.namaGroupQccp ?? "-"}</TableCell>
+                      <TableCell>{r.temaQccp ?? "-"}</TableCell>
                       <TableCell className="whitespace-nowrap">
                         {r.leader ?? "-"} ({r.leaderNrp ?? "-"})
                       </TableCell>
@@ -252,7 +284,7 @@ export function ApprovalQcc() {
                 <Badge variant="outline" style={{ backgroundColor: "#EE642E15", color: "#EE642E", borderColor: "#EE642E" }}>
                   QCC
                 </Badge>
-                <span>{detail.namaGroupQccp ?? detail.itemKey ?? "-"}</span>
+                <span>{detail.temaQccp ?? detail.itemKey ?? "-"}</span>
               </h2>
               <Button onClick={() => setDetail(null)} variant="ghost">
                 ✕
