@@ -358,6 +358,7 @@ function QccDetailModal({
 }
 // DashboardAnalyticsAndMonitoring.tsx
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { QccProjectMonitoringSummary } from "./components/QccProjectMonitoringSummary";
 import { PdfPopupViewer } from '../ui/PdfPopupViewer';
 // ...existing code...
 
@@ -4376,7 +4377,7 @@ export default function DashboardAnalyticsAndMonitoring(props: DashboardAnalytic
                 onResetFilters={onResetModuleFilters}
               />
 
-              {mon.selectedModule && selectedModuleConfig && selectedTheme && (
+              {mon.selectedModule && mon.selectedModule !== "qcc" && mon.selectedModule !== "qcp" && selectedModuleConfig && selectedTheme && (
                 <div
                   className="mt-4 rounded-xl p-4 animate-in fade-in slide-in-from-top-2 duration-300 border-2"
                   style={{ background: selectedTheme.panelBg, borderColor: selectedTheme.panelBorder }}
@@ -4445,7 +4446,7 @@ export default function DashboardAnalyticsAndMonitoring(props: DashboardAnalytic
               )}
             </div>
 
-            {mon.selectedModule ? (
+            {mon.selectedModule && mon.selectedModule !== "qcc" && mon.selectedModule !== "qcp" ? (
               <ProjectsTable
                 selectedModule={mon.selectedModule}
                 filteredProjects={mon.filteredProjects}
@@ -4470,6 +4471,18 @@ export default function DashboardAnalyticsAndMonitoring(props: DashboardAnalytic
                 }
                 showDetailModal={showDetailModal}
                 showEditModal={showEditModal}
+              />
+            ) : mon.selectedModule === "qcc" ? (
+              <QccProjectMonitoringSummary
+                filteredProjects={mon.filteredProjects}
+                showDetailModal={(p) => showDetailModal(p)}
+                type="QCC"
+              />
+            ) : mon.selectedModule === "qcp" ? (
+              <QccProjectMonitoringSummary
+                filteredProjects={mon.filteredProjects}
+                showDetailModal={(p) => showDetailModal(p)}
+                type="QCP"
               />
             ) : (
               <div className="text-center py-12 text-muted-foreground">

@@ -80,8 +80,7 @@ import { SsDashboardFilterBar, SS_DEFAULT_YEAR } from "./ss/SsDashboardFilterBar
 import { SsMonthlyAllSitesChart } from "./ss/SsMonthlyAllSitesChart";
 import { BRAND_SIDEBAR, SS_CHART_PALETTE, QCC_CHART_PALETTE } from "./chartPalette";
 import { MODULE_QUICK_LABEL } from "../config/modules";
-
-
+import { QccProjectMonitoringSummary } from "./components/QccProjectMonitoringSummary";
 
 // QCC Classification API hook
 function useQccClassificationApi(params: {
@@ -4908,8 +4907,8 @@ export default function DashboardLegacy(props: DashboardLegacyProps) {
               />
             )}
 
-            <div className={mon.selectedModule ? "mb-6" : ""}>
-              {mon.selectedModule && selectedModuleConfig && selectedTheme && (
+            <div className={mon.selectedModule && mon.selectedModule !== "qcc" && mon.selectedModule !== "qcp" ? "mb-6" : ""}>
+              {mon.selectedModule && mon.selectedModule !== "qcc" && mon.selectedModule !== "qcp" && selectedModuleConfig && selectedTheme && (
                 <div
                   className="mt-4 rounded-xl p-4 animate-in fade-in slide-in-from-top-2 duration-300 border-2"
                   style={{ background: selectedTheme.panelBg, borderColor: selectedTheme.panelBorder }}
@@ -4978,7 +4977,7 @@ export default function DashboardLegacy(props: DashboardLegacyProps) {
               )}
             </div>
 
-            {mon.selectedModule ? (
+            {mon.selectedModule && mon.selectedModule !== "qcc" && mon.selectedModule !== "qcp" ? (
               <ProjectsTable
                 selectedModule={mon.selectedModule}
                 filteredProjects={mon.filteredProjects}
@@ -5003,6 +5002,18 @@ export default function DashboardLegacy(props: DashboardLegacyProps) {
                 }
                 showDetailModal={showDetailModal}
                 showEditModal={showEditModal}
+              />
+            ) : mon.selectedModule === "qcc" ? (
+              <QccProjectMonitoringSummary
+                filteredProjects={mon.filteredProjects}
+                showDetailModal={showDetailModal}
+                type="QCC"
+              />
+            ) : mon.selectedModule === "qcp" ? (
+              <QccProjectMonitoringSummary
+                filteredProjects={mon.filteredProjects}
+                showDetailModal={showDetailModal}
+                type="QCP"
               />
             ) : (
               <div className="text-center py-12 text-muted-foreground">

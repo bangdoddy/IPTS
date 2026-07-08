@@ -314,7 +314,18 @@ export function ApprovalQcp() {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => window.open(`${CONFIG.apiBaseUrl}/qcp/steps/${detail.stepFileDoc}`, "_blank", "noopener,noreferrer")}
+                    onClick={() => {
+                      const url = `${CONFIG.apiBaseUrl}/qcp/steps/${detail.stepFileDoc}`;
+                      const width = 800;
+                      const height = 600;
+                      const left = window.screen.width / 2 - width / 2;
+                      const top = window.screen.height / 2 - height / 2;
+                      window.open(
+                        url,
+                        "_blank",
+                        `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
+                      );
+                    }}
                   >
                     Download
                   </Button>

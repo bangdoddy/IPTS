@@ -83,6 +83,9 @@ export default function ProjectStatusQcp() {
   const [stepLoading, setStepLoading] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [pdfOpen, setPdfOpen] = useState(false);
+  const [selectedUploadFile, setSelectedUploadFile] = useState<File | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [actionError, setActionError] = useState("");
 
   const { stepFilter, setStepFilter, stepOptions, filteredRows } = useStepFilter(rows);
 
@@ -150,6 +153,42 @@ export default function ProjectStatusQcp() {
       setStepLoading(false);
     }
   }, []);
+
+  const handleUploadStepFile = useCallback(async () => {
+    if (!detail || !selectedUploadFile) return;
+    setActionError("");
+    setActionLoading(true);
+    try {
+      const isJudulApproved = detail.stepStatus?.toLowerCase() === "judul approved";
+      const targetStep = isJudulApproved ? 1 : Number(detail.step ?? 0) + 1;
+      const formData = new FormData();
+      formData.append("ItemKey", detail.itemKey || "");
+      formData.append("Step", String(targetStep));
+      formData.append("Desc", detail.temaQccp || "");
+      formData.append("FileDoc", selectedUploadFile);
+      formData.append("CreatedBy", loginNrp || "");
+
+      const resp = await fetch(API.QCP_STEP_CREATE, {
+        method: "POST",
+        body: formData,
+      });
+      const json = await resp.json().catch(() => ({}));
+      const code = Number(json?.responseCode ?? resp.status);
+      if (code !== 200) throw new Error(json?.message ?? "Gagal upload file");
+
+      setSelectedUploadFile(null);
+      // Clear file inputs on page
+      const fileInputs = document.querySelectorAll('input[type="file"]') as NodeListOf<HTMLInputElement>;
+      fileInputs.forEach(input => { input.value = ''; });
+
+      setDetail(null);
+      await fetchList();
+    } catch (e: any) {
+      setActionError(e?.message || "Gagal upload file");
+    } finally {
+      setActionLoading(false);
+    }
+  }, [detail, selectedUploadFile, loginNrp, fetchList]);
 
   // Handle open detail
   const handleOpenDetail = (row: QcpProject) => {
@@ -282,7 +321,7 @@ export default function ProjectStatusQcp() {
                         <TableRow key={i}>
                           <TableCell>{s.step}</TableCell>
                           <TableCell>{s.status}</TableCell>
-                           <TableCell>{formatDate(s.tanggal)}</TableCell>
+                          <TableCell>{formatDate(s.tanggal)}</TableCell>
                           <TableCell>
                             {s.file ? (
                               <div className="flex gap-2">
@@ -314,6 +353,45 @@ export default function ProjectStatusQcp() {
                   </Table>
                 )}
               </div>
+
+              {(() => {
+                const isJudulApproved = detail.stepStatus?.toLowerCase() === "judul approved";
+                const targetStep = isJudulApproved ? 1 : Number(detail.step ?? 0) + 1;
+                const showUpload = (isJudulApproved || detail.stepStatus?.toLowerCase() === "approved") && targetStep <= 8;
+
+                if (!showUpload) return null;
+
+                return (
+                  <div className="border border-orange-200 rounded-lg p-4 bg-orange-50/50 space-y-3 mt-4">
+                    <div className="font-semibold text-orange-800">Upload Dokumen Step {targetStep}</div>
+                    <div className="flex flex-col sm:flex-row gap-2 items-center">
+                      <input
+                        type="file"
+                        accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0] || null;
+                          setSelectedUploadFile(file);
+                        }}
+                        className="block w-full text-sm text-slate-500
+                                        file:mr-4 file:py-2 file:px-4
+                                        file:rounded-full file:border-0
+                                        file:text-sm file:font-semibold
+                                        file:bg-orange-50 file:text-orange-700
+                                        hover:file:bg-orange-100"
+                      />
+                      <Button
+                        onClick={handleUploadStepFile}
+                        disabled={!selectedUploadFile || actionLoading}
+                        style={{ backgroundColor: "#EE642E", color: "#fff" }}
+                      >
+                        {actionLoading ? "Uploading..." : "Upload File"}
+                      </Button>
+                    </div>
+                    {actionError && <div className="text-xs text-red-600">{actionError}</div>}
+                  </div>
+                );
+              })()}
+
               {/* PDF Popup Viewer */}
               <PdfPopupViewer fileUrl={pdfUrl || ""} open={pdfOpen} onClose={() => setPdfOpen(false)} />
               <div className="flex gap-2 justify-end">

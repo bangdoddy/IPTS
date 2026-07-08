@@ -20,6 +20,7 @@ import { GrandTotalChartCard, PlanActualChartCard } from "../components/ChartCar
 import { ProjectsTable } from "../components/ProjectsTable";
 import { DetailModal as SsDetailModal } from "../components/SSModals";
 import { QccDetailModal } from "../components/QccModals";
+import { QccProjectMonitoringSummary } from "../components/QccProjectMonitoringSummary";
 
 // Mock Data
 import demoData from "./DashboardDemoData.json";
@@ -201,28 +202,36 @@ export default function DashboardDemo() {
                     </div>
                   </div>
 
-                  <div className="mt-12 space-y-4">
-                    <div className="flex items-center justify-between px-1">
-                       <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Project Detail List</h3>
-                       <span className="text-[10px] font-bold text-slate-400">{mon.filteredProjects.length} projects found</span>
+                  {mon.selectedModule !== "qcc" && (
+                    <div className="mt-12 space-y-4">
+                      <div className="flex items-center justify-between px-1">
+                         <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Project Detail List</h3>
+                         <span className="text-[10px] font-bold text-slate-400">{mon.filteredProjects.length} projects found</span>
+                      </div>
+                      <ProjectsTable
+                        selectedModule={mon.selectedModule}
+                        filteredProjects={mon.filteredProjects}
+                        selectedStatus={mon.selectedStatus || ""}
+                        selectedStep={mon.selectedStep}
+                        setSelectedStatus={mon.setSelectedStatus}
+                        setSelectedStep={mon.setSelectedStep}
+                        getTypeColor={(t) => mon.getTypeColor(t as any).bg}
+                        getStatusBadge={(p) => (
+                          <Badge variant="outline" className="text-[10px] font-bold">
+                            {mon.getStatusBadgeLabel(p.status, p.step)}
+                          </Badge>
+                        )}
+                        showDetailModal={setDetailItem}
+                        showEditModal={() => {}}
+                      />
                     </div>
-                    <ProjectsTable
-                      selectedModule={mon.selectedModule}
+                  )}
+                  {mon.selectedModule === "qcc" && (
+                    <QccProjectMonitoringSummary
                       filteredProjects={mon.filteredProjects}
-                      selectedStatus={mon.selectedStatus || ""}
-                      selectedStep={mon.selectedStep}
-                      setSelectedStatus={mon.setSelectedStatus}
-                      setSelectedStep={mon.setSelectedStep}
-                      getTypeColor={(t) => mon.getTypeColor(t as any).bg}
-                      getStatusBadge={(p) => (
-                        <Badge variant="outline" className="text-[10px] font-bold">
-                          {mon.getStatusBadgeLabel(p.status, p.step)}
-                        </Badge>
-                      )}
                       showDetailModal={setDetailItem}
-                      showEditModal={() => {}}
                     />
-                  </div>
+                  )}
                 </div>
               ) : (
                 <div className="py-24 flex flex-col items-center justify-center text-muted-foreground bg-slate-50/50 rounded-3xl border-2 border-dashed border-slate-200 mt-6">

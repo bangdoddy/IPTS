@@ -1,0 +1,889 @@
+{
+  "ssList": [
+    {
+      "id": 1,
+      "type": "SS",
+      "ideano": "SERA/01/26/SS/008",
+      "judul": "Meningkatkan Avability Hydraulic Table Scissor Dengan Penggantian Sling / Kawat Handle Release",
+      "pembuat": "IFAN PRIYANDANI",
+      "status": "Review by leader",
+      "createdAt": "2026-01-15T10:00:00Z",
+      "submittedDate": "2026-01-15T10:00:00Z",
+      "site": "SERA",
+      "nri": "0810468",
+      "section": "PLA",
+      "department": "OPR SERA",
+      "division": "POPD"
+    },
+    {
+      "id": 2,
+      "type": "SS",
+      "ideano": "ADMO/01/26/SS/0001",
+      "judul": "Membuat Technical Journal Menentukan Penyebab Utama Trouble Engine White Smoke",
+      "pembuat": "SUNGKONO",
+      "status": "Complete",
+      "createdAt": "2025-06-16T09:30:00Z",
+      "submittedDate": "2025-06-16T09:30:00Z",
+      "site": "ADMO",
+      "nri": "0110005",
+      "section": "PPD",
+      "department": "HRE",
+      "division": "HRDD"
+    },
+    {
+      "id": 3,
+      "type": "SS",
+      "ideano": "ADMO/01/26/SS/0002",
+      "judul": "Perbaikan Water Hose Reel Dari Part Assy Ke Sparepart Custom",
+      "pembuat": "JUPRI",
+      "status": "Review by bpi",
+      "createdAt": "2026-01-17T09:00:00Z",
+      "submittedDate": "2026-01-17T09:00:00Z",
+      "site": "ADMO",
+      "nri": "80001941",
+      "section": "MWC",
+      "department": "MWC",
+      "division": "-"
+    },
+    {
+      "id": 4,
+      "type": "SS",
+      "ideano": "ADMO/01/26/SS/0003",
+      "judul": "Membuat Monitoring Stok Seragam Kerja Menggunakan Fasilitas Google Spreadsheet",
+      "pembuat": "FITONI OCKTAVIAN",
+      "status": "Review by leader",
+      "createdAt": "2026-01-18T14:00:00Z",
+      "submittedDate": "2026-01-18T14:00:00Z",
+      "site": "ADMO",
+      "nri": "0210360",
+      "section": "RDE",
+      "department": "HRE",
+      "division": "HRDD"
+    },
+    {
+      "id": 5,
+      "type": "SS",
+      "ideano": "ADMO/01/26/SS/0004",
+      "judul": "Monitoring Pembayaran Bpjs Driver Sarana",
+      "pembuat": "AYU RAHMA PUTRI",
+      "status": "Complete",
+      "createdAt": "2025-09-19T13:30:00Z",
+      "submittedDate": "2025-09-19T13:30:00Z",
+      "site": "ADMO",
+      "nri": "80008910",
+      "section": "TTR",
+      "department": "GAF",
+      "division": "GAED"
+    },
+    {
+      "id": 6,
+      "type": "SS",
+      "ideano": "ADMO/01/26/SS/0005",
+      "judul": "Rekap Putusan Komdis / Data Monitoring Komdis (Komite Disiplin)",
+      "pembuat": "MEITA SAFITRI",
+      "status": "Review by leader",
+      "createdAt": "2026-01-20T11:00:00Z",
+      "submittedDate": "2026-01-20T11:00:00Z",
+      "site": "ADMO",
+      "nri": "80012050",
+      "section": "IRE",
+      "department": "HRE",
+      "division": "HRDD"
+    },
+    {
+      "id": 7,
+      "type": "SS",
+      "ideano": "ADMO/01/26/SS/0006",
+      "judul": "Rekap Pemasangan & Pencabutan Culvert",
+      "pembuat": "BAYAT JATI KURNIAWAN",
+      "status": "Review by bpi",
+      "createdAt": "2026-01-21T10:00:00Z",
+      "submittedDate": "2026-01-21T10:00:00Z",
+      "site": "ADMO",
+      "nri": "01111869",
+      "section": "SPC",
+      "department": "ENG",
+      "division": "TSUD"
+    },
+    {
+      "id": 8,
+      "type": "SS",
+      "ideano": "ADMO/01/26/SS/0007",
+      "judul": "Custom Filter Mirror Pada Riscanpro Untuk Cleaning Data Laser",
+      "pembuat": "JEFFRY JAN PITER SIMAMORA",
+      "status": "Complete",
+      "createdAt": "2025-11-22T08:00:00Z",
+      "submittedDate": "2025-11-22T08:00:00Z",
+      "site": "ADMO",
+      "nri": "0117424",
+      "section": "SPC",
+      "department": "ENG",
+      "division": "TSUD"
+    }
+  ],
+  "qccList": [
+    {
+      "id": 1,
+      "type": "QCC",
+      "namaGroupQccp": "MENURUNKAN LEAD TIME GENERAL OVERHAUL DUMP TRUCK, DOZER, DAN MOTOR GRADER",
+      "leader": "ALPIANTO / OSMAN SALEH",
+      "status": "in-progress",
+      "submittedDate": "2026-04-01T08:00:00Z",
+      "createdAt": "2026-04-01T08:00:00Z",
+      "namaTim": "KETOK MAGIC",
+      "step": 2,
+      "siteName": "ADMO",
+      "members": [
+        { "division": "POPD", "department": "PMI", "section": "PDG" }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "QCC",
+      "namaGroupQccp": "MENURUNKAN LEAD TIME OVERHAUL UNDERCARRIAGE UNIT KOMATSU D375A-6R & D155A-6 DARI RATA-RATA DIA ATAS 3 HARI MENJADI MAKSIMAL 3 HARI",
+      "leader": "M RIFAAN / U HURAIRAH",
+      "status": "in-progress",
+      "submittedDate": "2026-04-02T08:00:00Z",
+      "createdAt": "2026-04-02T08:00:00Z",
+      "namaTim": "FAST TRACK",
+      "step": 4,
+      "siteName": "ADMO",
+      "members": [
+        { "division": "POPD", "department": "PMI", "section": "PDG" }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "QCC",
+      "namaGroupQccp": "TRANSFORMASI SISTEM TRANSPORTASI TRAVEL ADMO: MENURUNKAN TRAVEL COST DENGAN MELAKUKAN PERUBAHAN SISTEM KONTRAK DARI SEWA PER TRIP MENJADI CONTRACT BASED FIXED RATE",
+      "leader": "YANDI GUNAWAN / WIDI ANDONO",
+      "status": "in-progress",
+      "submittedDate": "2026-04-03T08:00:00Z",
+      "createdAt": "2026-04-03T08:00:00Z",
+      "namaTim": "FORMULA TRAVEL",
+      "step": 1,
+      "siteName": "ADMO",
+      "members": [
+        { "division": "GAED", "department": "GAF", "section": "TTR" }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "QCC",
+      "namaGroupQccp": "FROM ICE (INTERNAL COMBUSTION ENGINE) TO EV (ELECTRIC VEHICLE) TRUCK",
+      "leader": "CHRISTIAN / SETYA BAKTI",
+      "status": "in-progress",
+      "submittedDate": "2026-04-04T08:00:00Z",
+      "createdAt": "2026-04-04T08:00:00Z",
+      "namaTim": "THE PRIDE",
+      "step": 3,
+      "siteName": "ADMO",
+      "members": [
+        { "division": "HRDD", "department": "HRE", "section": "PPD" }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "QCC",
+      "namaGroupQccp": "MENINGKATKAN EMPLOYEE SATISFACTION INDEX (ESI) DI MES SIS ADMO DARI 3,56 MENJADI 3,70 (TARGET INDEX 4,0) MELALUI FASILITAS DAN LAYANAN MES SERTA CATERING DENGAN VALIDASI UJI STATISTIK",
+      "leader": "SANDY NOVIAN / PRASETYO",
+      "status": "in-progress",
+      "submittedDate": "2026-04-05T08:00:00Z",
+      "createdAt": "2026-04-05T08:00:00Z",
+      "namaTim": "MHORE",
+      "step": 2,
+      "siteName": "ADMO",
+      "members": [
+        { "division": "GAED", "department": "GAF", "section": "MHO" }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "QCC",
+      "namaGroupQccp": "MENURUNKAN FREKUENSI KEBOCORAN TANGKI 40KL DARI 45 KALI MENJADI 8 KALI PADA TAHUN 2026",
+      "leader": "RIKO SEPTIADY / ZULKIFLI",
+      "status": "in-progress",
+      "submittedDate": "2026-04-06T08:00:00Z",
+      "createdAt": "2026-04-06T08:00:00Z",
+      "namaTim": "FFT38-5",
+      "step": 5,
+      "siteName": "ADMO",
+      "members": [
+        { "division": "POPD", "department": "PHA", "section": "FFT" }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "QCC",
+      "namaGroupQccp": "MENGURANGI WAKTU DIGGING TIME MENJADI DIBAWAH 12 DETIK DENGAN MENGGUNAKAN INCLINED DRILL SISI FREEFACE",
+      "leader": "AKBAR NUGROHO / SAGALA",
+      "status": "in-progress",
+      "submittedDate": "2026-04-07T08:00:00Z",
+      "createdAt": "2026-04-07T08:00:00Z",
+      "namaTim": "DR. STONE",
+      "step": 2,
+      "siteName": "ADMO",
+      "members": [
+        { "division": "OSUD", "department": "Production", "section": "DBL" }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "QCC",
+      "namaGroupQccp": "MENURUNKAN DURASI PENGUKURAN DARI 550 MENIT MENJADI 90 MENIT DAN AKURASI STD 5 CM MENGGUNAKAN UAV LIDAR UNTUK PENGUKURAN DAN PERHITUNGAN VOLUME ROM",
+      "leader": "NUR WARA B / P SIMAMORA",
+      "status": "in-progress",
+      "submittedDate": "2026-04-08T08:00:00Z",
+      "createdAt": "2026-04-08T08:00:00Z",
+      "namaTim": "PEGASUS PROJECT",
+      "step": 6,
+      "siteName": "ADMO",
+      "members": [
+        { "division": "TSUD", "department": "ENG", "section": "SPC" }
+      ]
+    },
+    {
+      "id": 9,
+      "type": "QCC",
+      "namaGroupQccp": "MENURUNKAN 50% DURASI PENGUKURAN DISPOSAL DARI 3 HARI MENJADI 1,5 HARI DENGAN AKURASI MEMENUHI STANDART LE90 ± 0.2m DENGAN MENGGUNAKAN UAV LIDAR UNTUK PENGUKURAN TOPOGRAFI",
+      "leader": "HERI IRWANSYAH / P SIMAMORA",
+      "status": "in-progress",
+      "submittedDate": "2026-04-09T08:00:00Z",
+      "createdAt": "2026-04-09T08:00:00Z",
+      "namaTim": "PHOENIX PROJECT",
+      "step": 4,
+      "siteName": "ADMO",
+      "members": [
+        { "division": "TSUD", "department": "ENG", "section": "SPC" }
+      ]
+    },
+    {
+      "id": 10,
+      "type": "QCC",
+      "namaGroupQccp": "MENURUNKAN COST BLASTING DARI USD 28,82 JUTA MENJADI USD 27,96 JUTA (SAVING USD 0.86 JUTA) DENGAN CARA OPTIMASI PROSES DRILL & BLAST DENGAN SISTEM PRESISI DAN INTEGRASI DATA UNIT",
+      "leader": "ZUDHI FIRMANTO / H BADOWI",
+      "status": "in-progress",
+      "submittedDate": "2026-04-09T10:00:00Z",
+      "createdAt": "2026-04-09T10:00:00Z",
+      "namaTim": "ACCURATE DRILLING INITIATIVE",
+      "step": 6,
+      "siteName": "ADMO",
+      "members": [
+        { "division": "OSUD", "department": "Production", "section": "DBL" }
+      ]
+    },
+    {
+      "id": 11,
+      "type": "QCC",
+      "namaGroupQccp": "MENINGKATKAN UPTIME 99% DARI YANG SEBELUMNYA SERING MENGALAMI PADAM UNSCHEDULE SEHINGGA BERDAMPAK PADA PUTUSNYA JARINGAN DENGAN MEMBUAT SOLAR CELL UNIT FOR NETWORK",
+      "leader": "EZA ARI PRATAMA / MARIADI",
+      "status": "in-progress",
+      "submittedDate": "2026-04-10T08:00:00Z",
+      "createdAt": "2026-04-10T08:00:00Z",
+      "namaTim": "SURYA-NET",
+      "step": 7,
+      "siteName": "ADMO",
+      "members": [
+        { "division": "ITED", "department": "ITS", "section": "ITS" }
+      ]
+    }
+  ],
+  "qcpList": [
+    {
+      "id": 1,
+      "type": "QCP",
+      "namaGroupQccp": "EXTEND LIFE TIME TRACK FRAME D375-6 DARI 11595 KE 12500 HRS DI TAHUN 2026",
+      "leader": "BAYU SUSANTO / HANDIKA RISMA",
+      "status": "in-progress",
+      "submittedDate": "2026-04-01T10:00:00Z",
+      "createdAt": "2026-04-01T10:00:00Z",
+      "namaTim": "GANADOR 2",
+      "step": 4,
+      "siteName": "ADMO",
+      "members": [
+        { "division": "POPD", "department": "PMI", "section": "PDG & PDW" }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "QCP",
+      "namaGroupQccp": "MENINGKATKAN AKURASI PELAPORAN HUNIAN KAMAR (OCCUPANCY RATE) HINGGA MENCAPAI TINGKAT PRESISI 100% DENGAN CARA MEMPERCEPAT DURASI PEMUTAKHIRAN DATA PENGHUNI DARI SEMUA MESS",
+      "leader": "CITRA LESMANA / PRASETYO",
+      "status": "in-progress",
+      "submittedDate": "2026-04-05T10:00:00Z",
+      "createdAt": "2026-04-05T10:00:00Z",
+      "namaTim": "MyHome",
+      "step": 2,
+      "siteName": "ADMO",
+      "members": [
+        { "division": "GAED", "department": "GAF", "section": "MHO" }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "QCP",
+      "namaGroupQccp": "DIGITALISASI PENGJUAN WO DAN PENGISIAN FUEL",
+      "leader": "BAHARUDIN / ZALI RAHMAN",
+      "status": "in-progress",
+      "submittedDate": "2026-04-07T10:00:00Z",
+      "createdAt": "2026-04-07T10:00:00Z",
+      "namaTim": "ADASIS",
+      "step": 3,
+      "siteName": "ADMO",
+      "members": [
+        { "division": "GAED", "department": "GAF", "section": "CGA" }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "QCP",
+      "namaGroupQccp": "MENINGKATKAN NILAI MUD OUT DARI 5% (153.995 M3) MENJADI 17% (380.933 M3) DARI WATER OUT PLAN DENGAN OPTIMALISASI PENGGUNAAN DREDGER PUMP DI SUMP SENTANI",
+      "leader": "ADINDA TANAYA / TRI HANDOKO",
+      "status": "in-progress",
+      "submittedDate": "2026-04-08T10:00:00Z",
+      "createdAt": "2026-04-08T10:00:00Z",
+      "namaTim": "DredgeForce",
+      "step": 5,
+      "siteName": "ADMO",
+      "members": [
+        { "division": "TSUD", "department": "ENG", "section": "LTP" }
+      ]
+    }
+  ],
+  "ssChart": [
+    { "site": "ADMO", "target": 320, "actual": 459 },
+    { "site": "JAHO-NARO", "target": 89, "actual": 41 },
+    { "site": "MACO", "target": 83, "actual": 73 },
+    { "site": "SERA", "target": 84, "actual": 73 }
+  ],
+  "qccChart": [
+    { "division": "HC", "plan": 5, "actual": 4 },
+    { "division": "MFG", "plan": 15, "actual": 16 },
+    { "division": "COMM", "plan": 8, "actual": 7 },
+    { "division": "OPS", "plan": 10, "actual": 12 },
+    { "division": "FA", "plan": 4, "actual": 4 }
+  ],
+  "qcpChart": [
+    { "division": "HC", "plan": 2, "actual": 2 },
+    { "division": "MFG", "plan": 4, "actual": 5 },
+    { "division": "COMM", "plan": 3, "actual": 3 },
+    { "division": "OPS", "plan": 2, "actual": 1 },
+    { "division": "FA", "plan": 1, "actual": 1 }
+  ],
+  "ssTotal": {
+    "totalActual": 646,
+    "totalTarget": 576
+  },
+  "ssTotal2025": {
+    "totalActual": 298,
+    "totalTarget": 268
+  },
+  "ssTotal2026": {
+    "totalActual": 646,
+    "totalTarget": 576
+  },
+  "ssTotal2024": {
+    "totalActual": 398,
+    "totalTarget": 368
+  },
+  "ssChart2025": [
+    { "site": "ADMO", "target": 148, "actual": 212 },
+    { "site": "JAHO-NARO", "target": 41, "actual": 19 },
+    { "site": "MACO", "target": 38, "actual": 34 },
+    { "site": "SERA", "target": 39, "actual": 33 }
+  ],
+  "ssChart2026": [
+    { "site": "ADMO", "target": 320, "actual": 459 },
+    { "site": "JAHO-NARO", "target": 89, "actual": 41 },
+    { "site": "MACO", "target": 83, "actual": 73 },
+    { "site": "SERA", "target": 84, "actual": 73 }
+  ],
+  "ssChart2024": [
+    { "site": "ADMO", "target": 248, "actual": 312 },
+    { "site": "JAHO-NARO", "target": 141, "actual": 119 },
+    { "site": "MACO", "target": 138, "actual": 134 },
+    { "site": "SERA", "target": 139, "actual": 133 }
+  ],
+  "ssMonthlyAllSites2025": [
+    { "month": 1, "monthName": "Jan", "plan": 46, "actual": 37 },
+    { "month": 2, "monthName": "Feb", "plan": 70, "actual": 81 },
+    { "month": 3, "monthName": "Mar", "plan": 96, "actual": 106 },
+    { "month": 4, "monthName": "Apr", "plan": 72, "actual": 73 },
+    { "month": 5, "monthName": "Mei", "plan": 0, "actual": 0 },
+    { "month": 6, "monthName": "Jun", "plan": 0, "actual": 0 },
+    { "month": 7, "monthName": "Jul", "plan": 0, "actual": 0 },
+    { "month": 8, "monthName": "Agst", "plan": 0, "actual": 0 },
+    { "month": 9, "monthName": "Sep", "plan": 0, "actual": 0 },
+    { "month": 10, "monthName": "Okt", "plan": 0, "actual": 0 },
+    { "month": 11, "monthName": "Nov", "plan": 0, "actual": 0 },
+    { "month": 12, "monthName": "Des", "plan": 0, "actual": 0 }
+  ],
+  "ssMonthlyAllSites2026": [
+    { "month": 1, "monthName": "Jan", "plan": 100, "actual": 81 },
+    { "month": 2, "monthName": "Feb", "plan": 152, "actual": 176 },
+    { "month": 3, "monthName": "Mar", "plan": 208, "actual": 230 },
+    { "month": 4, "monthName": "Apr", "plan": 157, "actual": 159 },
+    { "month": 5, "monthName": "Mei", "plan": 0, "actual": 0 },
+    { "month": 6, "monthName": "Jun", "plan": 0, "actual": 0 },
+    { "month": 7, "monthName": "Jul", "plan": 0, "actual": 0 },
+    { "month": 8, "monthName": "Agst", "plan": 0, "actual": 0 },
+    { "month": 9, "monthName": "Sep", "plan": 0, "actual": 0 },
+    { "month": 10, "monthName": "Okt", "plan": 0, "actual": 0 },
+    { "month": 11, "monthName": "Nov", "plan": 0, "actual": 0 },
+    { "month": 12, "monthName": "Des", "plan": 0, "actual": 0 }
+  ],
+  "ssMonthlyAllSites2024": [
+    { "month": 1, "monthName": "Jan", "plan": 146, "actual": 137 },
+    { "month": 2, "monthName": "Feb", "plan": 170, "actual": 181 },
+    { "month": 3, "monthName": "Mar", "plan": 196, "actual": 206 },
+    { "month": 4, "monthName": "Apr", "plan": 172, "actual": 173 },
+    { "month": 5, "monthName": "Mei", "plan": 100, "actual": 100 },
+    { "month": 6, "monthName": "Jun", "plan": 100, "actual": 100 },
+    { "month": 7, "monthName": "Jul", "plan": 100, "actual": 100 },
+    { "month": 8, "monthName": "Agst", "plan": 100, "actual": 100 },
+    { "month": 9, "monthName": "Sep", "plan": 100, "actual": 100 },
+    { "month": 10, "monthName": "Okt", "plan": 100, "actual": 100 },
+    { "month": 11, "monthName": "Nov", "plan": 100, "actual": 100 },
+    { "month": 12, "monthName": "Des", "plan": 100, "actual": 100 }
+  ],
+  "classification": [
+    { "id": 1, "name": "Technical", "count": 45 },
+    { "id": 2, "name": "Safety", "count": 30 },
+    { "id": 3, "name": "Environment", "count": 25 }
+  ],
+  "qccDashboard": {
+    "summaryData": [
+      { "site": "ADMO", "target": 28, "active": 11, "finish": 0 },
+      { "site": "JAHO-NARO", "target": 7, "active": 4, "finish": 0 },
+      { "site": "MACO", "target": 13, "active": 7, "finish": 0 },
+      { "site": "SERA", "target": 8, "active": 15, "finish": 0 }
+    ],
+    "monthlyData": [
+      { "month": 1, "monthName": "Jan", "target": 10, "active": 8, "finish": 5 },
+      { "month": 2, "monthName": "Feb", "target": 15, "active": 12, "finish": 8 },
+      { "month": 3, "monthName": "Mar", "target": 20, "active": 15, "finish": 10 },
+      { "month": 4, "monthName": "Apr", "target": 25, "active": 18, "finish": 12 },
+      { "month": 5, "monthName": "Mei", "target": 0, "active": 0, "finish": 0 },
+      { "month": 6, "monthName": "Jun", "target": 0, "active": 0, "finish": 0 },
+      { "month": 7, "monthName": "Jul", "target": 0, "active": 0, "finish": 0 },
+      { "month": 8, "monthName": "Agst", "target": 0, "active": 0, "finish": 0 },
+      { "month": 9, "monthName": "Sep", "target": 0, "active": 0, "finish": 0 },
+      { "month": 10, "monthName": "Okt", "target": 0, "active": 0, "finish": 0 },
+      { "month": 11, "monthName": "Nov", "target": 0, "active": 0, "finish": 0 },
+      { "month": 12, "monthName": "Des", "target": 0, "active": 0, "finish": 0 }
+    ],
+    "breakdownData": [
+      { "orgUnit": "ENG", "target": 10, "finish": 8 },
+      { "orgUnit": "PROD", "target": 15, "finish": 12 },
+      { "orgUnit": "PMI", "target": 12, "finish": 10 },
+      { "orgUnit": "HRE", "target": 5, "finish": 0 },
+      { "orgUnit": "GAF", "target": 8, "finish": 0 }
+    ]
+  },
+  "qcpDashboard": {
+    "summaryData": [
+      { "site": "ADMO", "target": 12, "active": 6, "finish": 0 },
+      { "site": "JAHO-NARO", "target": 3, "active": 4, "finish": 0 },
+      { "site": "MACO", "target": 3, "active": 2, "finish": 0 },
+      { "site": "SERA", "target": 8, "active": 8, "finish": 0 }
+    ],
+    "monthlyData": [
+      { "month": 1, "monthName": "Jan", "target": 5, "active": 4, "finish": 2 },
+      { "month": 2, "monthName": "Feb", "target": 8, "active": 6, "finish": 4 },
+      { "month": 3, "monthName": "Mar", "target": 10, "active": 8, "finish": 5 },
+      { "month": 4, "monthName": "Apr", "target": 12, "active": 9, "finish": 6 },
+      { "month": 5, "monthName": "Mei", "target": 0, "active": 0, "finish": 0 },
+      { "month": 6, "monthName": "Jun", "target": 0, "active": 0, "finish": 0 },
+      { "month": 7, "monthName": "Jul", "target": 0, "active": 0, "finish": 0 },
+      { "month": 8, "monthName": "Agst", "target": 0, "active": 0, "finish": 0 },
+      { "month": 9, "monthName": "Sep", "target": 0, "active": 0, "finish": 0 },
+      { "month": 10, "monthName": "Okt", "target": 0, "active": 0, "finish": 0 },
+      { "month": 11, "monthName": "Nov", "target": 0, "active": 0, "finish": 0 },
+      { "month": 12, "monthName": "Des", "target": 0, "active": 0, "finish": 0 }
+    ],
+    "breakdownData": [
+      { "orgUnit": "ENG", "target": 5, "finish": 4 },
+      { "orgUnit": "PROD", "target": 8, "finish": 6 },
+      { "orgUnit": "PMI", "target": 6, "finish": 5 },
+      { "orgUnit": "HRE", "target": 3, "finish": 0 },
+      { "orgUnit": "GAF", "target": 4, "finish": 0 }
+    ]
+  },
+  "ssDashboardADMO": {
+    "monthlyData": [
+      { "month": 1, "monthName": "Jan", "plan": 50, "actual": 50 },
+      { "month": 2, "monthName": "Feb", "plan": 100, "actual": 138 },
+      { "month": 3, "monthName": "Mar", "plan": 150, "actual": 155 },
+      { "month": 4, "monthName": "Apr", "plan": 100, "actual": 116 },
+      { "month": 5, "monthName": "Mei", "plan": 0, "actual": 0 },
+      { "month": 6, "monthName": "Jun", "plan": 0, "actual": 0 },
+      { "month": 7, "monthName": "Jul", "plan": 0, "actual": 0 },
+      { "month": 8, "monthName": "Agst", "plan": 0, "actual": 0 },
+      { "month": 9, "monthName": "Sep", "plan": 0, "actual": 0 },
+      { "month": 10, "monthName": "Okt", "plan": 0, "actual": 0 },
+      { "month": 11, "monthName": "Nov", "plan": 0, "actual": 0 },
+      { "month": 12, "monthName": "Des", "plan": 0, "actual": 0 }
+    ],
+    "breakdownData": [
+      { "orgUnit": "Coal & Fuel Transport", "target": 15, "actual": 20 },
+      { "orgUnit": "ENG", "target": 10, "actual": 11 },
+      { "orgUnit": "ERS", "target": 5, "actual": 1 },
+      { "orgUnit": "FAD", "target": 5, "actual": 0 },
+      { "orgUnit": "GAF", "target": 15, "actual": 20 },
+      { "orgUnit": "HRE", "target": 90, "actual": 125 },
+      { "orgUnit": "IT System & Development", "target": 5, "actual": 3 },
+      { "orgUnit": "ITE", "target": 5, "actual": 3 },
+      { "orgUnit": "KPE", "target": 15, "actual": 20 },
+      { "orgUnit": "LOG", "target": 60, "actual": 82 },
+      { "orgUnit": "MWC", "target": 5, "actual": 3 },
+      { "orgUnit": "PHA", "target": 15, "actual": 19 },
+      { "orgUnit": "Pit Service", "target": 5, "actual": 1 },
+      { "orgUnit": "PMI", "target": 45, "actual": 132 },
+      { "orgUnit": "Production", "target": 5, "actual": 1 },
+      { "orgUnit": "PSS", "target": 5, "actual": 18 }
+    ],
+    "breakdownMonthly": {
+      "1": [
+        { "orgUnit": "Coal & Fuel Transport", "target": 0, "actual": 2 },
+        { "orgUnit": "ENG", "target": 0, "actual": 3 },
+        { "orgUnit": "ERS", "target": 0, "actual": 0 },
+        { "orgUnit": "FAD", "target": 0, "actual": 0 },
+        { "orgUnit": "GAF", "target": 0, "actual": 7 },
+        { "orgUnit": "HRE", "target": 0, "actual": 21 },
+        { "orgUnit": "IT System & Development", "target": 0, "actual": 0 },
+        { "orgUnit": "ITE", "target": 0, "actual": 0 },
+        { "orgUnit": "KPE", "target": 0, "actual": 2 },
+        { "orgUnit": "LOG", "target": 0, "actual": 1 },
+        { "orgUnit": "MWC", "target": 0, "actual": 1 },
+        { "orgUnit": "PHA", "target": 0, "actual": 1 },
+        { "orgUnit": "Pit Service", "target": 0, "actual": 0 },
+        { "orgUnit": "PMI", "target": 0, "actual": 12 },
+        { "orgUnit": "Production", "target": 0, "actual": 0 },
+        { "orgUnit": "PSS", "target": 0, "actual": 0 }
+      ],
+      "2": [
+        { "orgUnit": "Coal & Fuel Transport", "target": 0, "actual": 10 },
+        { "orgUnit": "ENG", "target": 0, "actual": 2 },
+        { "orgUnit": "ERS", "target": 0, "actual": 0 },
+        { "orgUnit": "FAD", "target": 0, "actual": 0 },
+        { "orgUnit": "GAF", "target": 0, "actual": 5 },
+        { "orgUnit": "HRE", "target": 0, "actual": 35 },
+        { "orgUnit": "IT System & Development", "target": 0, "actual": 1 },
+        { "orgUnit": "ITE", "target": 0, "actual": 1 },
+        { "orgUnit": "KPE", "target": 0, "actual": 5 },
+        { "orgUnit": "LOG", "target": 0, "actual": 11 },
+        { "orgUnit": "MWC", "target": 0, "actual": 0 },
+        { "orgUnit": "PHA", "target": 0, "actual": 10 },
+        { "orgUnit": "Pit Service", "target": 0, "actual": 0 },
+        { "orgUnit": "PMI", "target": 0, "actual": 52 },
+        { "orgUnit": "Production", "target": 0, "actual": 0 },
+        { "orgUnit": "PSS", "target": 0, "actual": 6 }
+      ],
+      "3": [
+        { "orgUnit": "Coal & Fuel Transport", "target": 0, "actual": 2 },
+        { "orgUnit": "ENG", "target": 0, "actual": 3 },
+        { "orgUnit": "ERS", "target": 0, "actual": 0 },
+        { "orgUnit": "FAD", "target": 0, "actual": 0 },
+        { "orgUnit": "GAF", "target": 0, "actual": 4 },
+        { "orgUnit": "HRE", "target": 0, "actual": 32 },
+        { "orgUnit": "IT System & Development", "target": 0, "actual": 0 },
+        { "orgUnit": "ITE", "target": 0, "actual": 1 },
+        { "orgUnit": "KPE", "target": 0, "actual": 8 },
+        { "orgUnit": "LOG", "target": 0, "actual": 47 },
+        { "orgUnit": "MWC", "target": 0, "actual": 0 },
+        { "orgUnit": "PHA", "target": 0, "actual": 7 },
+        { "orgUnit": "Pit Service", "target": 0, "actual": 0 },
+        { "orgUnit": "PMI", "target": 0, "actual": 48 },
+        { "orgUnit": "Production", "target": 0, "actual": 1 },
+        { "orgUnit": "PSS", "target": 0, "actual": 2 }
+      ],
+      "4": [
+        { "orgUnit": "Coal & Fuel Transport", "target": 0, "actual": 6 },
+        { "orgUnit": "ENG", "target": 0, "actual": 3 },
+        { "orgUnit": "ERS", "target": 0, "actual": 1 },
+        { "orgUnit": "FAD", "target": 0, "actual": 0 },
+        { "orgUnit": "GAF", "target": 0, "actual": 4 },
+        { "orgUnit": "HRE", "target": 0, "actual": 37 },
+        { "orgUnit": "IT System & Development", "target": 0, "actual": 2 },
+        { "orgUnit": "ITE", "target": 0, "actual": 1 },
+        { "orgUnit": "KPE", "target": 0, "actual": 5 },
+        { "orgUnit": "LOG", "target": 0, "actual": 23 },
+        { "orgUnit": "MWC", "target": 0, "actual": 2 },
+        { "orgUnit": "PHA", "target": 0, "actual": 1 },
+        { "orgUnit": "Pit Service", "target": 0, "actual": 1 },
+        { "orgUnit": "PMI", "target": 0, "actual": 20 },
+        { "orgUnit": "Production", "target": 0, "actual": 0 },
+        { "orgUnit": "PSS", "target": 0, "actual": 10 }
+      ]
+    }
+  },
+  "ssDashboardMACO": {
+    "monthlyData": [
+      { "month": 1, "monthName": "Jan", "plan": 11, "actual": 13 },
+      { "month": 2, "monthName": "Feb", "plan": 12, "actual": 18 },
+      { "month": 3, "monthName": "Mar", "plan": 19, "actual": 8 },
+      { "month": 4, "monthName": "Apr", "plan": 19, "actual": 34 },
+      { "month": 5, "monthName": "Mei", "plan": 0, "actual": 0 },
+      { "month": 6, "monthName": "Jun", "plan": 0, "actual": 0 },
+      { "month": 7, "monthName": "Jul", "plan": 0, "actual": 0 },
+      { "month": 8, "monthName": "Agst", "plan": 0, "actual": 0 },
+      { "month": 9, "monthName": "Sep", "plan": 0, "actual": 0 },
+      { "month": 10, "monthName": "Okt", "plan": 0, "actual": 0 },
+      { "month": 11, "monthName": "Nov", "plan": 0, "actual": 0 },
+      { "month": 12, "monthName": "Des", "plan": 0, "actual": 0 }
+    ],
+    "breakdownData": [
+      { "orgUnit": "Engineering", "target": 10, "actual": 2 },
+      { "orgUnit": "Finance", "target": 5, "actual": 2 },
+      { "orgUnit": "General Affair", "target": 5, "actual": 0 },
+      { "orgUnit": "Human Resource", "target": 10, "actual": 7 },
+      { "orgUnit": "Keselamatan Pertambangan", "target": 10, "actual": 10 },
+      { "orgUnit": "Logistic", "target": 10, "actual": 9 },
+      { "orgUnit": "Plant Hauling", "target": 12, "actual": 16 },
+      { "orgUnit": "Plant Mining", "target": 10, "actual": 13 },
+      { "orgUnit": "Production Hauling", "target": 5, "actual": 0 },
+      { "orgUnit": "Production Mining", "target": 6, "actual": 14 }
+    ],
+    "breakdownMonthly": {
+      "1": [
+        { "orgUnit": "Engineering", "target": 0, "actual": 1 },
+        { "orgUnit": "Finance", "target": 0, "actual": 0 },
+        { "orgUnit": "General Affair", "target": 0, "actual": 0 },
+        { "orgUnit": "Human Resource", "target": 0, "actual": 4 },
+        { "orgUnit": "Keselamatan Pertambangan", "target": 0, "actual": 0 },
+        { "orgUnit": "Logistic", "target": 0, "actual": 5 },
+        { "orgUnit": "Plant Hauling", "target": 0, "actual": 3 },
+        { "orgUnit": "Plant Mining", "target": 0, "actual": 0 },
+        { "orgUnit": "Production Hauling", "target": 0, "actual": 0 },
+        { "orgUnit": "Production Mining", "target": 0, "actual": 0 }
+      ],
+      "2": [
+        { "orgUnit": "Engineering", "target": 0, "actual": 0 },
+        { "orgUnit": "Finance", "target": 0, "actual": 1 },
+        { "orgUnit": "General Affair", "target": 0, "actual": 0 },
+        { "orgUnit": "Human Resource", "target": 0, "actual": 1 },
+        { "orgUnit": "Keselamatan Pertambangan", "target": 0, "actual": 3 },
+        { "orgUnit": "Logistic", "target": 0, "actual": 2 },
+        { "orgUnit": "Plant Hauling", "target": 0, "actual": 5 },
+        { "orgUnit": "Plant Mining", "target": 0, "actual": 6 },
+        { "orgUnit": "Production Hauling", "target": 0, "actual": 0 },
+        { "orgUnit": "Production Mining", "target": 0, "actual": 0 }
+      ],
+      "3": [
+        { "orgUnit": "Engineering", "target": 0, "actual": 1 },
+        { "orgUnit": "Finance", "target": 0, "actual": 0 },
+        { "orgUnit": "General Affair", "target": 0, "actual": 0 },
+        { "orgUnit": "Human Resource", "target": 0, "actual": 1 },
+        { "orgUnit": "Keselamatan Pertambangan", "target": 0, "actual": 0 },
+        { "orgUnit": "Logistic", "target": 0, "actual": 2 },
+        { "orgUnit": "Plant Hauling", "target": 0, "actual": 4 },
+        { "orgUnit": "Plant Mining", "target": 0, "actual": 0 },
+        { "orgUnit": "Production Hauling", "target": 0, "actual": 0 },
+        { "orgUnit": "Production Mining", "target": 0, "actual": 0 }
+      ],
+      "4": [
+        { "orgUnit": "Engineering", "target": 0, "actual": 0 },
+        { "orgUnit": "Finance", "target": 0, "actual": 1 },
+        { "orgUnit": "General Affair", "target": 0, "actual": 0 },
+        { "orgUnit": "Human Resource", "target": 0, "actual": 1 },
+        { "orgUnit": "Keselamatan Pertambangan", "target": 0, "actual": 7 },
+        { "orgUnit": "Logistic", "target": 0, "actual": 0 },
+        { "orgUnit": "Plant Hauling", "target": 0, "actual": 4 },
+        { "orgUnit": "Plant Mining", "target": 0, "actual": 7 },
+        { "orgUnit": "Production Hauling", "target": 0, "actual": 0 },
+        { "orgUnit": "Production Mining", "target": 0, "actual": 14 }
+      ]
+    }
+  },
+  "ssDashboardSERA": {
+    "monthlyData": [
+      { "month": 1, "monthName": "Jan", "plan": 21, "actual": 8 },
+      { "month": 2, "monthName": "Feb", "plan": 21, "actual": 8 },
+      { "month": 3, "monthName": "Mar", "plan": 21, "actual": 55 },
+      { "month": 4, "monthName": "Apr", "plan": 21, "actual": 2 },
+      { "month": 5, "monthName": "Mei", "plan": 0, "actual": 0 },
+      { "month": 6, "monthName": "Jun", "plan": 0, "actual": 0 },
+      { "month": 7, "monthName": "Jul", "plan": 0, "actual": 0 },
+      { "month": 8, "monthName": "Agst", "plan": 0, "actual": 0 },
+      { "month": 9, "monthName": "Sep", "plan": 0, "actual": 0 },
+      { "month": 10, "monthName": "Okt", "plan": 0, "actual": 0 },
+      { "month": 11, "monthName": "Nov", "plan": 0, "actual": 0 },
+      { "month": 12, "monthName": "Des", "plan": 0, "actual": 0 }
+    ],
+    "breakdownData": [
+      { "orgUnit": "Coal Hauling & Road Maintenance", "target": 10, "actual": 0 },
+      { "orgUnit": "Engineering", "target": 12, "actual": 14 },
+      { "orgUnit": "Finance", "target": 5, "actual": 1 },
+      { "orgUnit": "Human Resource & General Affair", "target": 15, "actual": 17 },
+      { "orgUnit": "Keselamatan Pertambangan", "target": 10, "actual": 4 },
+      { "orgUnit": "Logistic", "target": 10, "actual": 7 },
+      { "orgUnit": "Plant", "target": 12, "actual": 24 },
+      { "orgUnit": "Production", "target": 10, "actual": 6 }
+    ],
+    "breakdownMonthly": {
+      "1": [
+        { "orgUnit": "Coal Hauling & Road Maintenance", "target": 0, "actual": 0 },
+        { "orgUnit": "Engineering", "target": 0, "actual": 1 },
+        { "orgUnit": "Finance", "target": 0, "actual": 1 },
+        { "orgUnit": "Human Resource & General Affair", "target": 0, "actual": 0 },
+        { "orgUnit": "Keselamatan Pertambangan", "target": 0, "actual": 0 },
+        { "orgUnit": "Logistic", "target": 0, "actual": 0 },
+        { "orgUnit": "Plant", "target": 0, "actual": 3 },
+        { "orgUnit": "Production", "target": 0, "actual": 3 }
+      ],
+      "2": [
+        { "orgUnit": "Coal Hauling & Road Maintenance", "target": 0, "actual": 0 },
+        { "orgUnit": "Engineering", "target": 0, "actual": 0 },
+        { "orgUnit": "Finance", "target": 0, "actual": 0 },
+        { "orgUnit": "Human Resource & General Affair", "target": 0, "actual": 2 },
+        { "orgUnit": "Keselamatan Pertambangan", "target": 0, "actual": 0 },
+        { "orgUnit": "Logistic", "target": 0, "actual": 0 },
+        { "orgUnit": "Plant", "target": 0, "actual": 5 },
+        { "orgUnit": "Production", "target": 0, "actual": 1 }
+      ],
+      "3": [
+        { "orgUnit": "Coal Hauling & Road Maintenance", "target": 0, "actual": 0 },
+        { "orgUnit": "Engineering", "target": 0, "actual": 13 },
+        { "orgUnit": "Finance", "target": 0, "actual": 0 },
+        { "orgUnit": "Human Resource & General Affair", "target": 0, "actual": 15 },
+        { "orgUnit": "Keselamatan Pertambangan", "target": 0, "actual": 4 },
+        { "orgUnit": "Logistic", "target": 0, "actual": 7 },
+        { "orgUnit": "Plant", "target": 0, "actual": 15 },
+        { "orgUnit": "Production", "target": 0, "actual": 1 }
+      ],
+      "4": [
+        { "orgUnit": "Coal Hauling & Road Maintenance", "target": 0, "actual": 0 },
+        { "orgUnit": "Engineering", "target": 0, "actual": 0 },
+        { "orgUnit": "Finance", "target": 0, "actual": 0 },
+        { "orgUnit": "Human Resource & General Affair", "target": 0, "actual": 0 },
+        { "orgUnit": "Keselamatan Pertambangan", "target": 0, "actual": 0 },
+        { "orgUnit": "Logistic", "target": 0, "actual": 0 },
+        { "orgUnit": "Plant", "target": 0, "actual": 1 },
+        { "orgUnit": "Production", "target": 0, "actual": 1 }
+      ]
+    }
+  },
+  "ssDashboardJAHO": {
+    "monthlyData": [
+      { "month": 1, "monthName": "Jan", "plan": 18, "actual": 10 },
+      { "month": 2, "monthName": "Feb", "plan": 19, "actual": 12 },
+      { "month": 3, "monthName": "Mar", "plan": 18, "actual": 12 },
+      { "month": 4, "monthName": "Apr", "plan": 17, "actual": 7 },
+      { "month": 5, "monthName": "Mei", "plan": 0, "actual": 0 },
+      { "month": 6, "monthName": "Jun", "plan": 0, "actual": 0 },
+      { "month": 7, "monthName": "Jul", "plan": 0, "actual": 0 },
+      { "month": 8, "monthName": "Agst", "plan": 0, "actual": 0 },
+      { "month": 9, "monthName": "Sep", "plan": 0, "actual": 0 },
+      { "month": 10, "monthName": "Okt", "plan": 0, "actual": 0 },
+      { "month": 11, "monthName": "Nov", "plan": 0, "actual": 0 },
+      { "month": 12, "monthName": "Des", "plan": 0, "actual": 0 }
+    ],
+    "breakdownData": [
+      { "orgUnit": "Accounting", "target": 4, "actual": 0 },
+      { "orgUnit": "EIR", "target": 4, "actual": 0 },
+      { "orgUnit": "General Affairs", "target": 4, "actual": 0 },
+      { "orgUnit": "IT", "target": 4, "actual": 0 },
+      { "orgUnit": "IT Support, Planning, & Infrastructure", "target": 5, "actual": 0 },
+      { "orgUnit": "LOG", "target": 5, "actual": 1 },
+      { "orgUnit": "LSD", "target": 4, "actual": 0 },
+      { "orgUnit": "ODT", "target": 4, "actual": 0 },
+      { "orgUnit": "OPD", "target": 4, "actual": 0 },
+      { "orgUnit": "Payable & Compliance", "target": 4, "actual": 0 },
+      { "orgUnit": "PEN", "target": 10, "actual": 7 },
+      { "orgUnit": "PPD", "target": 5, "actual": 3 },
+      { "orgUnit": "Project Support & Development", "target": 5, "actual": 0 },
+      { "orgUnit": "PURCHASING", "target": 5, "actual": 2 },
+      { "orgUnit": "RCE", "target": 10, "actual": 28 },
+      { "orgUnit": "REC", "target": 4, "actual": 0 },
+      { "orgUnit": "REM", "target": 4, "actual": 0 },
+      { "orgUnit": "SHE Operation", "target": 3, "actual": 0 },
+      { "orgUnit": "SHE System & Compliance", "target": 4, "actual": 0 }
+    ],
+    "breakdownMonthly": {
+      "1": [
+        { "orgUnit": "Accounting", "target": 0, "actual": 0 },
+        { "orgUnit": "EIR", "target": 0, "actual": 0 },
+        { "orgUnit": "General Affairs", "target": 0, "actual": 0 },
+        { "orgUnit": "IT", "target": 0, "actual": 0 },
+        { "orgUnit": "IT Support, Planning, & Infrastructure", "target": 0, "actual": 0 },
+        { "orgUnit": "LOG", "target": 0, "actual": 0 },
+        { "orgUnit": "LSD", "target": 0, "actual": 0 },
+        { "orgUnit": "ODT", "target": 0, "actual": 0 },
+        { "orgUnit": "OPD", "target": 0, "actual": 0 },
+        { "orgUnit": "Payable & Compliance", "target": 0, "actual": 0 },
+        { "orgUnit": "PEN", "target": 0, "actual": 7 },
+        { "orgUnit": "PPD", "target": 0, "actual": 0 },
+        { "orgUnit": "Project Support & Development", "target": 0, "actual": 0 },
+        { "orgUnit": "PURCHASING", "target": 0, "actual": 1 },
+        { "orgUnit": "RCE", "target": 0, "actual": 2 },
+        { "orgUnit": "REC", "target": 0, "actual": 0 },
+        { "orgUnit": "REM", "target": 0, "actual": 0 },
+        { "orgUnit": "SHE Operation", "target": 0, "actual": 0 },
+        { "orgUnit": "SHE System & Compliance", "target": 0, "actual": 0 }
+      ],
+      "2": [
+        { "orgUnit": "Accounting", "target": 0, "actual": 0 },
+        { "orgUnit": "EIR", "target": 0, "actual": 0 },
+        { "orgUnit": "General Affairs", "target": 0, "actual": 0 },
+        { "orgUnit": "IT", "target": 0, "actual": 0 },
+        { "orgUnit": "IT Support, Planning, & Infrastructure", "target": 0, "actual": 0 },
+        { "orgUnit": "LOG", "target": 0, "actual": 1 },
+        { "orgUnit": "LSD", "target": 0, "actual": 0 },
+        { "orgUnit": "ODT", "target": 0, "actual": 0 },
+        { "orgUnit": "OPD", "target": 0, "actual": 0 },
+        { "orgUnit": "Payable & Compliance", "target": 0, "actual": 0 },
+        { "orgUnit": "PEN", "target": 0, "actual": 0 },
+        { "orgUnit": "PPD", "target": 0, "actual": 0 },
+        { "orgUnit": "Project Support & Development", "target": 0, "actual": 0 },
+        { "orgUnit": "PURCHASING", "target": 0, "actual": 1 },
+        { "orgUnit": "RCE", "target": 0, "actual": 10 },
+        { "orgUnit": "REC", "target": 0, "actual": 0 },
+        { "orgUnit": "REM", "target": 0, "actual": 0 },
+        { "orgUnit": "SHE Operation", "target": 0, "actual": 0 },
+        { "orgUnit": "SHE System & Compliance", "target": 0, "actual": 0 }
+      ],
+      "3": [
+        { "orgUnit": "Accounting", "target": 0, "actual": 0 },
+        { "orgUnit": "EIR", "target": 0, "actual": 0 },
+        { "orgUnit": "General Affairs", "target": 0, "actual": 0 },
+        { "orgUnit": "IT", "target": 0, "actual": 0 },
+        { "orgUnit": "IT Support, Planning, & Infrastructure", "target": 0, "actual": 0 },
+        { "orgUnit": "LOG", "target": 0, "actual": 0 },
+        { "orgUnit": "LSD", "target": 0, "actual": 0 },
+        { "orgUnit": "ODT", "target": 0, "actual": 0 },
+        { "orgUnit": "OPD", "target": 0, "actual": 0 },
+        { "orgUnit": "Payable & Compliance", "target": 0, "actual": 0 },
+        { "orgUnit": "PEN", "target": 0, "actual": 0 },
+        { "orgUnit": "PPD", "target": 0, "actual": 1 },
+        { "orgUnit": "Project Support & Development", "target": 0, "actual": 0 },
+        { "orgUnit": "PURCHASING", "target": 0, "actual": 0 },
+        { "orgUnit": "RCE", "target": 0, "actual": 11 },
+        { "orgUnit": "REC", "target": 0, "actual": 0 },
+        { "orgUnit": "REM", "target": 0, "actual": 0 },
+        { "orgUnit": "SHE Operation", "target": 0, "actual": 0 },
+        { "orgUnit": "SHE System & Compliance", "target": 0, "actual": 0 }
+      ],
+      "4": [
+        { "orgUnit": "Accounting", "target": 0, "actual": 0 },
+        { "orgUnit": "EIR", "target": 0, "actual": 0 },
+        { "orgUnit": "General Affairs", "target": 0, "actual": 0 },
+        { "orgUnit": "IT", "target": 0, "actual": 0 },
+        { "orgUnit": "IT Support, Planning, & Infrastructure", "target": 0, "actual": 0 },
+        { "orgUnit": "LOG", "target": 0, "actual": 0 },
+        { "orgUnit": "LSD", "target": 0, "actual": 0 },
+        { "orgUnit": "ODT", "target": 0, "actual": 0 },
+        { "orgUnit": "OPD", "target": 0, "actual": 0 },
+        { "orgUnit": "Payable & Compliance", "target": 0, "actual": 0 },
+        { "orgUnit": "PEN", "target": 0, "actual": 0 },
+        { "orgUnit": "PPD", "target": 0, "actual": 2 },
+        { "orgUnit": "Project Support & Development", "target": 0, "actual": 0 },
+        { "orgUnit": "PURCHASING", "target": 0, "actual": 0 },
+        { "orgUnit": "RCE", "target": 0, "actual": 5 },
+        { "orgUnit": "REC", "target": 0, "actual": 0 },
+        { "orgUnit": "REM", "target": 0, "actual": 0 },
+        { "orgUnit": "SHE Operation", "target": 0, "actual": 0 },
+        { "orgUnit": "SHE System & Compliance", "target": 0, "actual": 0 }
+      ]
+    }
+  }
+}

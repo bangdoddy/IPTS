@@ -1,0 +1,206 @@
+{
+  "projects": [
+    {
+      "id": 1,
+      "type": "SS",
+      "judulSS": "Digitalization of Attendance System",
+      "pembuatSS": "Andi Wijaya",
+      "status": "Complete",
+      "submittedDate": "2025-10-15T00:00:00Z",
+      "site": "Cikupa",
+      "department": "IT",
+      "division": "Human Capital"
+    },
+    {
+      "id": 2,
+      "type": "QCC",
+      "judulSS": "Reduction of Scrap in Production Line A",
+      "pembuatSS": "Budi Santoso",
+      "status": "In Progress",
+      "submittedDate": "2025-11-20T00:00:00Z",
+      "namaGroupQccp": "Circle Alpha",
+      "step": 4,
+      "department": "Production",
+      "division": "Manufacturing"
+    },
+    {
+      "id": 3,
+      "type": "QCP",
+      "judulSS": "Optimizing Supply Chain Lead Time",
+      "pembuatSS": "Citra Lestari",
+      "status": "Submitted",
+      "submittedDate": "2025-12-05T00:00:00Z",
+      "department": "Logistics",
+      "division": "Supply Chain"
+    },
+    {
+      "id": 4,
+      "type": "SS",
+      "judulSS": "Paperless Office Initiative",
+      "pembuatSS": "Dedi Kurniawan",
+      "status": "Review by leader",
+      "submittedDate": "2026-01-10T00:00:00Z",
+      "department": "Finance",
+      "division": "Finance & Accounting"
+    },
+    {
+      "id": 5,
+      "type": "QCC",
+      "judulSS": "Energy Saving in Warehouse Lighting",
+      "pembuatSS": "Eko Prasetyo",
+      "status": "Finished",
+      "submittedDate": "2026-02-14T00:00:00Z",
+      "namaGroupQccp": "Green Energy",
+      "department": "Facility",
+      "division": "Operations"
+    },
+    {
+      "id": 6,
+      "type": "QCP",
+      "judulSS": "New Product Development Cycle Reduction",
+      "pembuatSS": "Fanny Amalia",
+      "status": "In Progress",
+      "step": 6,
+      "department": "R&D",
+      "division": "Engineering"
+    },
+    {
+      "id": 7,
+      "type": "SS",
+      "judulSS": "Mobile CRM Integration",
+      "pembuatSS": "Guntur",
+      "status": "Review by bpi",
+      "submittedDate": "2026-03-22T00:00:00Z",
+      "department": "Sales",
+      "division": "Commercial"
+    },
+    {
+      "id": 8,
+      "type": "QCC",
+      "judulSS": "Improving Forklift Safety Protocols",
+      "pembuatSS": "Hendra",
+      "status": "In Progress",
+      "step": 2,
+      "department": "WH",
+      "division": "Operations"
+    },
+    {
+      "id": 9,
+      "type": "QCP",
+      "judulSS": "Factory 4.0 IoT Implementation",
+      "pembuatSS": "Indra",
+      "status": "In Progress",
+      "step": 5,
+      "department": "Maintenance",
+      "division": "Manufacturing"
+    },
+    {
+      "id": 10,
+      "type": "SS",
+      "judulSS": "E-Learning Platform Upgrade",
+      "pembuatSS": "Joko",
+      "status": "Complete",
+      "submittedDate": "2026-04-05T00:00:00Z",
+      "department": "Learning",
+      "division": "Human Capital"
+    },
+    {
+      "id": 11,
+      "type": "QCC",
+      "judulSS": "Defect Reduction in Packaging",
+      "pembuatSS": "Kiki",
+      "status": "Submitted",
+      "submittedDate": "2026-04-18T00:00:00Z",
+      "department": "Quality",
+      "division": "Manufacturing"
+    },
+    {
+      "id": 12,
+      "type": "QCP",
+      "judulSS": "Warehouse Automation Phase 1",
+      "pembuatSS": "Lely",
+      "status": "In Progress",
+      "step": 3,
+      "department": "Logistics",
+      "division": "Supply Chain"
+    },
+    {
+      "id": 13,
+      "type": "SS",
+      "judulSS": "AI Chatbot for Customer Support",
+      "pembuatSS": "Maman",
+      "status": "Review by leader",
+      "submittedDate": "2026-05-01T00:00:00Z",
+      "department": "CS",
+      "division": "Commercial"
+    }
+  ],
+  "ssChart": [
+    { "month": "Jan 25", "plan": 400, "actual": 380 },
+    { "month": "Feb 25", "plan": 420, "actual": 410 },
+    { "month": "Mar 25", "plan": 450, "actual": 460 },
+    { "month": "Apr 25", "plan": 440, "actual": 435 },
+    { "month": "May 25", "plan": 460, "actual": 470 },
+    { "month": "Jun 25", "plan": 480, "actual": 465 },
+    { "month": "Jul 25", "plan": 500, "actual": 510 },
+    { "month": "Aug 25", "plan": 520, "actual": 490 },
+    { "month": "Sep 25", "plan": 540, "actual": 550 },
+    { "month": "Oct 25", "plan": 560, "actual": 580 },
+    { "month": "Nov 25", "plan": 580, "actual": 570 },
+    { "month": "Dec 25", "plan": 600, "actual": 615 },
+    { "month": "Jan 26", "plan": 620, "actual": 630 },
+    { "month": "Feb 26", "plan": 640, "actual": 620 },
+    { "month": "Mar 26", "plan": 660, "actual": 680 },
+    { "month": "Apr 26", "plan": 680, "actual": 670 },
+    { "month": "May 26", "plan": 700, "actual": 725 }
+  ],
+  "qccChart": [
+    { "month": "Jan 25", "plan": 10, "actual": 8 },
+    { "month": "Feb 25", "plan": 12, "actual": 12 },
+    { "month": "Mar 25", "plan": 15, "actual": 14 },
+    { "month": "Apr 25", "plan": 14, "actual": 15 },
+    { "month": "May 25", "plan": 16, "actual": 18 },
+    { "month": "Jun 25", "plan": 18, "actual": 17 },
+    { "month": "Jul 25", "plan": 20, "actual": 22 },
+    { "month": "Aug 25", "plan": 22, "actual": 20 },
+    { "month": "Sep 25", "plan": 24, "actual": 25 },
+    { "month": "Oct 25", "plan": 26, "actual": 28 },
+    { "month": "Nov 25", "plan": 28, "actual": 27 },
+    { "month": "Dec 25", "plan": 30, "actual": 32 },
+    { "month": "Jan 26", "plan": 32, "actual": 30 },
+    { "month": "Feb 26", "plan": 34, "actual": 36 },
+    { "month": "Mar 26", "plan": 36, "actual": 38 },
+    { "month": "Apr 26", "plan": 38, "actual": 35 },
+    { "month": "May 26", "plan": 40, "actual": 45 }
+  ],
+  "qcpChart": [
+    { "month": "Jan 25", "plan": 2, "actual": 2 },
+    { "month": "Feb 25", "plan": 2, "actual": 3 },
+    { "month": "Mar 25", "plan": 3, "actual": 3 },
+    { "month": "Apr 25", "plan": 3, "actual": 4 },
+    { "month": "May 25", "plan": 4, "actual": 4 },
+    { "month": "Jun 25", "plan": 4, "actual": 3 },
+    { "month": "Jul 25", "plan": 5, "actual": 5 },
+    { "month": "Aug 25", "plan": 5, "actual": 6 },
+    { "month": "Sep 25", "plan": 6, "actual": 6 },
+    { "month": "Oct 25", "plan": 6, "actual": 7 },
+    { "month": "Nov 25", "plan": 7, "actual": 7 },
+    { "month": "Dec 25", "plan": 7, "actual": 8 },
+    { "month": "Jan 26", "plan": 8, "actual": 8 },
+    { "month": "Feb 26", "plan": 8, "actual": 9 },
+    { "month": "Mar 26", "plan": 9, "actual": 9 },
+    { "month": "Apr 26", "plan": 9, "actual": 8 },
+    { "month": "May 26", "plan": 10, "actual": 12 }
+  ],
+  "orgStructure": {
+    "Cikupa": {
+      "Human Capital": ["HR", "Learning", "Health"],
+      "Manufacturing": ["Production", "Quality", "Maintenance"],
+      "Commercial": ["Sales", "Marketing", "CS"]
+    },
+    "Balaraja": {
+      "Operations": ["WH", "Logistics", "Facility"],
+      "Finance & Accounting": ["Finance", "Tax", "Internal Audit"]
+    }
+  }
+}

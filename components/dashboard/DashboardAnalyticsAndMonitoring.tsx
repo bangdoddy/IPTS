@@ -4,18 +4,18 @@ import { API } from "../../config";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 // Types
-import { 
-  DashboardAnalyticsAndMonitoringProps, 
-  ModuleId 
+import {
+  DashboardAnalyticsAndMonitoringProps,
+  ModuleId
 } from "./types";
 
 // Hooks
-import { 
-  useAuthToken, 
-  useLoginNrp, 
-  useSsList, 
-  useQccListByNrp, 
-  useQcpListByNrp, 
+import {
+  useAuthToken,
+  useLoginNrp,
+  useSsList,
+  useQccListByNrp,
+  useQcpListByNrp,
   useQccClassificationApi,
   useProjectChartApi,
   useSsTotalChart
@@ -35,6 +35,7 @@ import { DetailModal as SsDetailModal, EditModal as SsEditModal } from "./compon
 import { QccDetailModal } from "./components/QccModals";
 import { QccDashboardContainer } from "./qcc/QccDashboardContainer";
 import { QcpDashboardContainer } from "./qcc/QcpDashboardContainer";
+import { QccProjectMonitoringSummary } from "./components/QccProjectMonitoringSummary";
 
 export default function DashboardAnalyticsAndMonitoring(props: DashboardAnalyticsAndMonitoringProps) {
   const token = useAuthToken();
@@ -61,14 +62,14 @@ export default function DashboardAnalyticsAndMonitoring(props: DashboardAnalytic
   // 3. QCC / QCP List (by NRP)
   const qccList = useQccListByNrp({
     enabled: !!loginNrp,
-    url: (API as any).QCC_REGISTRATION_LIST,
+    url: API.QCC_LIST,
     nrp: loginNrp || "",
     token,
     refreshKey,
   });
   const qcpList = useQcpListByNrp({
     enabled: !!loginNrp,
-    url: (API as any).QCP_REGISTRATION_LIST,
+    url: API.QCP_LIST,
     nrp: loginNrp || "",
     token,
     refreshKey,
@@ -219,7 +220,7 @@ export default function DashboardAnalyticsAndMonitoring(props: DashboardAnalytic
       {(mon.selectedModule === null || mon.selectedModule === "ss") && (
         <div className="mt-8 space-y-12 animate-in slide-in-from-bottom-4 duration-700">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-            <GrandTotalChartCard 
+            <GrandTotalChartCard
               title="Grand Total SS"
               subtitle="Total Actual vs Target Performance"
               accentColor="#4472C4"
@@ -232,7 +233,7 @@ export default function DashboardAnalyticsAndMonitoring(props: DashboardAnalytic
               onMonth={ssFilter.setMonth}
             />
 
-            <PlanActualChartCard 
+            <PlanActualChartCard
               title="SS Collected"
               subtitle="Achievement per Division/Department"
               accentColor="#006187"
@@ -266,13 +267,13 @@ export default function DashboardAnalyticsAndMonitoring(props: DashboardAnalytic
 
       {mon.selectedModule === "qcc" && (
         <div className="mt-8 animate-in slide-in-from-bottom-4 duration-700">
-           <QccDashboardContainer />
+          <QccDashboardContainer />
         </div>
       )}
 
       {mon.selectedModule === "qcp" && (
         <div className="mt-8 animate-in slide-in-from-bottom-4 duration-700">
-           <QcpDashboardContainer />
+          <QcpDashboardContainer />
         </div>
       )}
 
@@ -296,19 +297,19 @@ export default function DashboardAnalyticsAndMonitoring(props: DashboardAnalytic
                 <p className="text-xs text-muted-foreground mt-1">Click to view specific module statistics</p>
               </div>
 
-              <QuickModuleGrid 
-                modules={props.modules} 
-                selectedId={mon.selectedModule} 
+              <QuickModuleGrid
+                modules={props.modules}
+                selectedId={mon.selectedModule}
                 onSelect={mon.setSelectedModule}
                 onResetFilters={mon.resetAllFilters}
               />
 
-              {mon.selectedModule && (
-                <div 
-                  className="mt-4 rounded-xl p-4 animate-in fade-in slide-in-from-top-2 duration-300 border-2" 
-                  style={{ 
-                    background: mon.selectedModule ? (MODULE_THEME[mon.selectedModule]?.panelBg || "#ffffff") : "#ffffff", 
-                    borderColor: mon.selectedModule ? (MODULE_THEME[mon.selectedModule]?.panelBorder || "#e5e7eb") : "#e5e7eb" 
+              {mon.selectedModule && mon.selectedModule !== "qcc" && mon.selectedModule !== "qcp" && (
+                <div
+                  className="mt-4 rounded-xl p-4 animate-in fade-in slide-in-from-top-2 duration-300 border-2"
+                  style={{
+                    background: mon.selectedModule ? (MODULE_THEME[mon.selectedModule]?.panelBg || "#ffffff") : "#ffffff",
+                    borderColor: mon.selectedModule ? (MODULE_THEME[mon.selectedModule]?.panelBorder || "#e5e7eb") : "#e5e7eb"
                   }}
                 >
                   <div className="flex items-center justify-between mb-3">
@@ -328,7 +329,7 @@ export default function DashboardAnalyticsAndMonitoring(props: DashboardAnalytic
                   </div>
 
                   <div className="space-y-6">
-                    <StatsPanel 
+                    <StatsPanel
                       moduleId={mon.selectedModule}
                       selectedStatus={mon.selectedStatus}
                       onSelectStatus={mon.setSelectedStatus}
@@ -340,7 +341,7 @@ export default function DashboardAnalyticsAndMonitoring(props: DashboardAnalytic
                     />
 
                     {isQFamily(mon.selectedModule) && mon.selectedStatus === "in-progress" && (
-                      <StepsPanel 
+                      <StepsPanel
                         moduleId={mon.selectedModule}
                         projects={mon.filteredProjects}
                         selectedStep={mon.selectedStep}
@@ -348,7 +349,7 @@ export default function DashboardAnalyticsAndMonitoring(props: DashboardAnalytic
                       />
                     )}
 
-                    <MemberFilters 
+                    <MemberFilters
                       options={orgFilter}
                       orgLoading={master.loading}
                       selectedSite={mon.selectedSite}
@@ -365,9 +366,9 @@ export default function DashboardAnalyticsAndMonitoring(props: DashboardAnalytic
               )}
             </div>
 
-            {mon.selectedModule ? (
+            {mon.selectedModule && mon.selectedModule !== "qcc" && mon.selectedModule !== "qcp" ? (
               <div className="mt-6">
-                <ProjectsTable 
+                <ProjectsTable
                   selectedModule={mon.selectedModule}
                   filteredProjects={mon.filteredProjects}
                   selectedStatus={mon.selectedStatus}
@@ -383,12 +384,24 @@ export default function DashboardAnalyticsAndMonitoring(props: DashboardAnalytic
                     totalRows: ssList.totalRows,
                     totalPages: ssList.totalPages,
                     setPageNumber: setSsPageIndex,
-                    setPageSize: () => {}
+                    setPageSize: () => { }
                   } : undefined}
                   showDetailModal={handleOpenDetail}
                   showEditModal={handleOpenEdit}
                 />
               </div>
+            ) : mon.selectedModule === "qcc" ? (
+              <QccProjectMonitoringSummary
+                filteredProjects={mon.filteredProjects}
+                showDetailModal={(p) => handleOpenDetail(String(p.id), p.type)}
+                type="QCC"
+              />
+            ) : mon.selectedModule === "qcp" ? (
+              <QccProjectMonitoringSummary
+                filteredProjects={mon.filteredProjects}
+                showDetailModal={(p) => handleOpenDetail(String(p.id), p.type)}
+                type="QCP"
+              />
             ) : (
               <div className="text-center py-12 text-muted-foreground">
                 <div className="flex flex-col items-center gap-3">
@@ -405,21 +418,21 @@ export default function DashboardAnalyticsAndMonitoring(props: DashboardAnalytic
 
       {/* Modals */}
       {detailId && detailType === "SS" && (
-        <SsDetailModal 
+        <SsDetailModal
           project={detailApi.data}
           loading={detailApi.loading}
           onClose={() => setDetailId(null)}
         />
       )}
       {detailId && (detailType === "QCC" || detailType === "QCP") && (
-        <QccDetailModal 
+        <QccDetailModal
           project={mon.filteredProjects.find(p => String(p.id) === detailId) || detailApi.data}
           onClose={() => setDetailId(null)}
           onStepSubmitted={() => setRefreshKey(k => k + 1)}
         />
       )}
       {editId && (
-        <SsEditModal 
+        <SsEditModal
           id={editId}
           onClose={() => setEditId(null)}
           onSuccess={() => {
