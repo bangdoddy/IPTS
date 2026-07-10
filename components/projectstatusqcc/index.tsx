@@ -4,6 +4,7 @@ import { Card, CardContent } from "../ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
+import { Checkbox } from "../ui/checkbox";
 import { CONFIG, API } from "../../config";
 import { PdfPopupViewer } from "../ui/PdfPopupViewer";
 import { getCookieJson } from "../../libs/cookie";
@@ -56,6 +57,7 @@ interface QccStep {
   status: string;
   tanggal: string;
   file?: string;
+  reason?: string;
 }
 
 function formatDate(dateStr?: string) {
@@ -70,6 +72,12 @@ function formatDate(dateStr?: string) {
   }
 }
 
+function formatThousandSeparator(val: string) {
+  const clean = val.replace(/\D/g, "");
+  if (!clean) return "";
+  return clean.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
 export default function ProjectStatusQcc() {
   const loginNrp = useLoginNrp();
   const [refreshKey] = useState(0);
@@ -82,6 +90,9 @@ export default function ProjectStatusQcc() {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [pdfOpen, setPdfOpen] = useState(false);
   const [selectedUploadFile, setSelectedUploadFile] = useState<File | null>(null);
+  const [costInput, setCostInput] = useState("");
+  const [costTypeCost, setCostTypeCost] = useState(false);
+  const [costTypeRevenue, setCostTypeRevenue] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [actionError, setActionError] = useState("");
 
@@ -102,7 +113,7 @@ export default function ProjectStatusQcc() {
       const resp = await fetch(API.QCC_LIST, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ CreatedBy: createdBy, RefreshKey: refreshKey }),
+        body: JSON.stringify({ CreatedBy: createdBy, RefreshKey: refreshKey, Status: 'finished' }),
       });
       const json = await resp.json();
       setRows(Array.isArray(json?.data) ? json.data : []);
@@ -141,6 +152,7 @@ export default function ProjectStatusQcc() {
         status: s.status ?? s.Status ?? "",
         tanggal: formatDate(s.createdAt ?? s.CreatedAt ?? ""),
         file: s.fileDoc ?? s.FileDoc ? `${CONFIG.apiBaseUrl}/qcc/steps/${s.fileDoc ?? s.FileDoc}` : undefined,
+        reason: s.reason ?? s.Reason ?? "",
       })) : [];
       setStepHistory(data);
     } catch {
@@ -156,13 +168,36 @@ export default function ProjectStatusQcc() {
     setActionLoading(true);
     try {
       const isJudulApproved = detail.stepStatus?.toLowerCase() === "judul approved";
-      const targetStep = isJudulApproved ? 1 : Number(detail.step ?? 0) + 1;
+      const isRejected = detail.stepStatus?.toLowerCase() === "rejected";
+      const targetStep = isJudulApproved ? 1 : (isRejected ? Number(detail.step ?? 1) : Number(detail.step ?? 0) + 1);
+
+      if (targetStep === 4 && !costInput.trim()) {
+        setActionError("Nilai Cost wajib diisi");
+        setActionLoading(false);
+        return;
+      }
+
+      if (targetStep === 4 && !costTypeCost && !costTypeRevenue) {
+        setActionError("Tipe Cost wajib dipilih (Cost atau Revenue)");
+        setActionLoading(false);
+        return;
+      }
+
       const formData = new FormData();
       formData.append("ItemKey", detail.itemKey || "");
       formData.append("Step", String(targetStep));
       formData.append("Desc", detail.temaQccp || "");
       formData.append("FileDoc", selectedUploadFile);
       formData.append("CreatedBy", loginNrp || "");
+      if (targetStep === 4) {
+        const rawCost = costInput.replace(/\./g, "");
+        formData.append("Cost", rawCost);
+
+        const selectedTypes: string[] = [];
+        if (costTypeCost) selectedTypes.push("Cost");
+        if (costTypeRevenue) selectedTypes.push("Revenue");
+        formData.append("CostType", selectedTypes.join(", "));
+      }
 
       const resp = await fetch(API.QCC_STEP_CREATE, {
         method: "POST",
@@ -173,6 +208,9 @@ export default function ProjectStatusQcc() {
       if (code !== 200) throw new Error(json?.message ?? "Gagal upload file");
 
       setSelectedUploadFile(null);
+      setCostInput("");
+      setCostTypeCost(false);
+      setCostTypeRevenue(false);
       // Clear file inputs on page
       const fileInputs = document.querySelectorAll('input[type="file"]') as NodeListOf<HTMLInputElement>;
       fileInputs.forEach(input => { input.value = ''; });
@@ -184,7 +222,7 @@ export default function ProjectStatusQcc() {
     } finally {
       setActionLoading(false);
     }
-  }, [detail, selectedUploadFile, loginNrp, fetchList]);
+  }, [detail, selectedUploadFile, costInput, costTypeCost, costTypeRevenue, loginNrp, fetchList]);
 
   // Handle open detail
   const handleOpenDetail = (row: QccProject) => {
@@ -308,6 +346,7 @@ export default function ProjectStatusQcc() {
                         <TableHead>Step</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Tanggal</TableHead>
+                        <TableHead>Reject Reason</TableHead>
                         <TableHead>File</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -317,6 +356,7 @@ export default function ProjectStatusQcc() {
                           <TableCell>{s.step}</TableCell>
                           <TableCell>{s.status}</TableCell>
                           <TableCell>{formatDate(s.tanggal)}</TableCell>
+                          <TableCell>{s.reason || "-"}</TableCell>
                           <TableCell>
                             {s.file ? (
                               <div className="flex gap-2">
@@ -341,7 +381,7 @@ export default function ProjectStatusQcc() {
                         </TableRow>
                       )) : (
                         <TableRow>
-                          <TableCell colSpan={4} className="text-center text-muted-foreground py-4">No step history</TableCell>
+                          <TableCell colSpan={5} className="text-center text-muted-foreground py-4">No step history</TableCell>
                         </TableRow>
                       )}
                     </TableBody>
@@ -351,14 +391,70 @@ export default function ProjectStatusQcc() {
 
               {(() => {
                 const isJudulApproved = detail.stepStatus?.toLowerCase() === "judul approved";
-                const targetStep = isJudulApproved ? 1 : Number(detail.step ?? 0) + 1;
-                const showUpload = (isJudulApproved || detail.stepStatus?.toLowerCase() === "approved") && targetStep <= 8;
+                const isRejected = detail.stepStatus?.toLowerCase() === "rejected";
+                const targetStep = isJudulApproved ? 1 : (isRejected ? Number(detail.step ?? 1) : Number(detail.step ?? 0) + 1);
+                const showUpload = (isJudulApproved || detail.stepStatus?.toLowerCase() === "approved" || isRejected) && targetStep <= 8;
 
                 if (!showUpload) return null;
 
                 return (
-                  <div className="border border-orange-200 rounded-lg p-4 bg-orange-50/50 space-y-3 mt-4">
+                  <div className="border border-orange-200 rounded-lg p-4 bg-orange-50/50 space-y-4 mt-4">
+                    {targetStep === 4 && (
+                      <div className="space-y-3">
+                        <div className="space-y-1">
+                          <label htmlFor="cost-input" className="text-md font-semibold text-orange-800">
+                            Cost ( in USD ) <span className="text-red-500">*</span>
+                          </label>
+                          <div className="p-2">
+                            <input
+                              id="cost-input"
+                              type="text"
+                              placeholder="Masukkan Nilai Cost"
+                              value={costInput}
+                              onChange={(e) => setCostInput(formatThousandSeparator(e.target.value))}
+                              className="block w-full text-sm rounded-md border border-orange-200 bg-white px-3 py-2 focus:outline-none focus:ring-1 focus:ring-orange-500 shadow-sm"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-3">
+                          <div className="text-md font-semibold text-orange-800">
+                            Cost Type <span className="text-red-500">*</span>
+                          </div>
+                          <div className="flex flex-row gap-6 items-center p-2">
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                id="cost-type-cost"
+                                checked={costTypeCost}
+                                onChange={(e) => setCostTypeCost(e.target.checked)}
+                                className="w-4 h-4 rounded text-orange-600 border-orange-300 focus:ring-orange-500 cursor-pointer accent-orange-600"
+                              />
+                              <label htmlFor="cost-type-cost" className="text-sm font-medium text-slate-700 cursor-pointer select-none">
+                                Cost
+                              </label>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                id="cost-type-revenue"
+                                checked={costTypeRevenue}
+                                onChange={(e) => setCostTypeRevenue(e.target.checked)}
+                                className="w-4 h-4 rounded text-orange-600 border-orange-300 focus:ring-orange-500 cursor-pointer accent-orange-600"
+                              />
+                              <label htmlFor="cost-type-revenue" className="text-sm font-medium text-slate-700 cursor-pointer select-none">
+                                Revenue
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {actionError && <div className="text-xs text-red-600">{actionError}
+                    </div>
+                    }
                     <div className="font-semibold text-orange-800">Upload Dokumen Step {targetStep}</div>
+
                     <div className="flex flex-col sm:flex-row gap-2 items-center">
                       <input
                         type="file"
@@ -368,6 +464,7 @@ export default function ProjectStatusQcc() {
                           setSelectedUploadFile(file);
                         }}
                         className="block w-full text-sm text-slate-500
+                        border border-orange-200 rounded-lg bg-white px-3 py-2
                           file:mr-4 file:py-2 file:px-4
                           file:rounded-full file:border-0
                           file:text-sm file:font-semibold
@@ -382,7 +479,7 @@ export default function ProjectStatusQcc() {
                         {actionLoading ? "Uploading..." : "Upload File"}
                       </Button>
                     </div>
-                    {actionError && <div className="text-xs text-red-600">{actionError}</div>}
+
                   </div>
                 );
               })()}

@@ -191,7 +191,7 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
         const res = await fetch(url, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: 1 }),
+          body: JSON.stringify({ action: 1, jobsite: user.jobsite }),
           credentials: "include",
           signal: ctrl.signal,
         });

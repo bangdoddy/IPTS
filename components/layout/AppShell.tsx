@@ -16,6 +16,7 @@ import {
   LogOut,
   User,
   Layers3,
+  Search,
 } from "lucide-react";
 
 import imageLogo from "figma:asset/61a2558e1c35ada4e51acfac6fd341f0b4d33ce0.png";
@@ -136,6 +137,23 @@ export function AppShell({ user }: { user: any }) {
       { key: "home", label: "Home", to: PATHS.app.home, icon: <HomeIcon className="w-5 h-5" /> },
       { key: "create", label: "Create Idea or Project", to: PATHS.app.create, icon: <Lightbulb className="w-5 h-5" /> },
       { key: "dashboard", label: "Dashboard", to: PATHS.app.dashboard, icon: <BarChart3 className="w-5 h-5" /> },
+      {
+        key: "tracking", label: "Projects Tracking",
+        to: PATHS.app.dashboard,
+        icon: <Search className="w-5 h-5" />,
+        children: [
+          {
+            key: "tracking-ss",
+            label: "SS Tracking",
+            children: [
+              { key: "tracking-ss", label: "Projects", to: PATHS.app.trackingss },
+              { key: "tracking-ss-draft", label: "Drafts", to: PATHS.app.projectstatussdraft },
+            ],
+          },
+          { key: "tracking-qcc", label: "QCC Tracking", to: PATHS.app.trackingqcc },
+          { key: "tracking-qcp", label: "QCP Tracking", to: PATHS.app.dashboard },
+        ],
+      },
       (auth.actorType === "REVIEWER" || auth.actorType === "SUPERIOR") ? {
         key: "master",
         label: "Master",
@@ -157,16 +175,17 @@ export function AppShell({ user }: { user: any }) {
         label: "Historical Projects",
         icon: <Clock className="w-5 h-5" />,
         children: [
-          { key: "historical-qcc", label: "QCC Projects", to: PATHS.app.projectstatusqcc },
-          { key: "historical-qcp", label: "QCP Projects", to: PATHS.app.projectstatusqcp },
           {
             key: "historical-ss",
             label: "SS Projects",
-            children: [
-              { key: "historical-ss-index", label: "Projects", to: PATHS.app.projectstatusss },
-              { key: "historical-ss-draft", label: "Drafts", to: PATHS.app.projectstatussdraft },
-            ],
+            to: PATHS.app.projectstatusss,
+            // children: [
+            //   { key: "historical-ss-index", label: "Projects", to: PATHS.app.projectstatusss },
+            //   { key: "historical-ss-draft", label: "Drafts", to: PATHS.app.projectstatussdraft },
+            // ],
           },
+          { key: "historical-qcc", label: "QCC Projects", to: PATHS.app.projectstatusqcc },
+          { key: "historical-qcp", label: "QCP Projects", to: PATHS.app.projectstatusqcp },
         ],
       },
       { key: "calendar", label: "Calendar Event", to: PATHS.app.calendar, icon: <CalendarIcon className="w-5 h-5" /> },

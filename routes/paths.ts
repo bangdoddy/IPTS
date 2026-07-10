@@ -24,6 +24,8 @@ export const PATHS = {
     approvalQCC: "/approval/qcc",
     approvalQCP: "/approval/qcp",
     projectstatusss: "/project-status-ss",
+    trackingss: "/trackingSS",
+    trackingqcc: "/trackingQCC",
     projectstatussdraft: "/project-status-draft",
     projectstatusqcp: "/project-status-qcp",
     projectstatusqcc: "/project-status-qcc",

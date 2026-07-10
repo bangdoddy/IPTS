@@ -92,6 +92,7 @@ export function QccProjectMonitoringSummary(props: {
     if (pageSize === "all") {
       return stats.list;
     }
+    console.log(stats.list);
     const size = parseInt(pageSize) || 10;
     const startIndex = (currentPage - 1) * size;
     const endIndex = startIndex + size;

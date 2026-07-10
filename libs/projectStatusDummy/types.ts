@@ -52,4 +52,5 @@ export type DummyStepRow = {
   status: string;
   tanggal: string;
   file?: string;
+  reason?: string;
 };

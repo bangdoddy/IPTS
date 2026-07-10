@@ -1,4 +1,6 @@
 import ProjectStatusQcc from "../components/projectstatusqcc/index";
+import TrackingQcc from "../components/tracking/trackingqcc";
+
 // src/routes/AppRoutes.tsx
 import React, { useCallback } from "react";
 import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
@@ -27,6 +29,7 @@ import DashboardLegacyPage from "../components/DashboardLegacyPage";
 import HistoricalPage from "../components/HistoricalPage";
 import HomeHistoricalPage from "../components/HistoricalProject/Home";
 import { Home as ProjectStatusPage } from "../components/projectstatusss/index";
+import { Home as TrackingSS } from "../components/tracking/trackingss";
 import { SSDraft as ProjectDraftSS } from "../components/projectstatusss/projectdraftss";
 import MasterManagementPage from "../components/master/MasterManagementPage";
 import UserMaintenancePage from "../components/master/UserMaintenancePage";
@@ -198,6 +201,14 @@ export default function AppRoutes({ projects, setProjects }: AppRoutesProps) {
         <Route
           path={PATHS.app.projectstatusss}
           element={<ProjectStatusPage />}
+        />
+        <Route
+          path={PATHS.app.trackingss}
+          element={<TrackingSS />}
+        />
+        <Route
+          path={PATHS.app.trackingqcc}
+          element={<TrackingQcc />}
         />
         <Route
           path={PATHS.app.projectstatussdraft}

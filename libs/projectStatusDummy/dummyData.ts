@@ -203,10 +203,13 @@ function buildStepHistory(currentStep: number, createdAt: string): DummyStepRow[
   for (let i = 1; i <= max; i++) {
     const d = new Date(base);
     d.setDate(d.getDate() - (max - i) * 7);
+    const isRejected = i === 2 && max > 2;
+    const status = isRejected ? "Rejected" : (i < max ? "Approved" : "On Progress");
     rows.push({
       step: String(i),
-      status: i < max ? "Approved" : "On Progress",
+      status,
       tanggal: d.toISOString(),
+      reason: isRejected ? "Format PDF kurang lengkap dan lampiran tidak jelas" : undefined,
     });
   }
   return rows;

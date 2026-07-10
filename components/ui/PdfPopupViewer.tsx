@@ -7,7 +7,9 @@ import workerSrc from 'pdfjs-dist/build/pdf.worker.mjs?url';
 import styles from './PdfPopupViewer.module.css';
 
 // Set the workerSrc for pdfjs (Vite compatible)
-pdfjs.GlobalWorkerOptions.workerSrc = workerSrc;
+
+// pdfjs.GlobalWorkerOptions.workerSrc = workerSrc;
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 interface PdfPopupViewerProps {
     fileUrl: string;

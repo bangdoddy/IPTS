@@ -2637,7 +2637,7 @@ export function Approval() {
                   {String(effectiveStatus).toLowerCase().includes('bpi') && (
                     <Button
                       variant="default"
-                      style={{ backgroundColor: '#2563eb', color: 'white', borderColor: '#2563eb' }}
+                      style={{ backgroundColor: '#2563eb', color: 'white', borderColor: '#2563eb', display: 'none' }}
                       onClick={() => {
                         openBPIEdit(selectedProject);
                         closeDetailModal();

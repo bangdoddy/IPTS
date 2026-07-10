@@ -101,13 +101,17 @@ export function SidebarMenu(props: { items: SidebarItem[]; level?: number }) {
                   <span>{item.label}</span>
                 </span>
                 <svg
-                  className={cn("w-4 h-4 shrink-0 transition-transform duration-200", isOpen && "rotate-90")}
+                  className="w-4 h-4 shrink-0"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
                   viewBox="0 0 24 24"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  {isOpen ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  )}
                 </svg>
               </button>
             ) : item.to ? (

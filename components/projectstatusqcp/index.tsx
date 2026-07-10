@@ -57,6 +57,7 @@ interface QcpStep {
   status: string;
   tanggal: string;
   file?: string;
+  reason?: string;
 }
 
 function formatDate(dateStr?: string) {
@@ -104,7 +105,7 @@ export default function ProjectStatusQcp() {
       const resp = await fetch(API.QCP_LIST, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ CreatedBy: createdBy, RefreshKey: refreshKey }),
+        body: JSON.stringify({ CreatedBy: createdBy, RefreshKey: refreshKey, Status: 'finished' }),
       });
       const json = await resp.json();
       setRows(Array.isArray(json?.data) ? json.data : []);
@@ -313,6 +314,7 @@ export default function ProjectStatusQcp() {
                         <TableHead>Step</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Tanggal</TableHead>
+                        <TableHead>Reject Reason</TableHead>
                         <TableHead>File</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -322,6 +324,7 @@ export default function ProjectStatusQcp() {
                           <TableCell>{s.step}</TableCell>
                           <TableCell>{s.status}</TableCell>
                           <TableCell>{formatDate(s.tanggal)}</TableCell>
+                          <TableCell>{s.reason || "-"}</TableCell>
                           <TableCell>
                             {s.file ? (
                               <div className="flex gap-2">

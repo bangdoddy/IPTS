@@ -37,7 +37,9 @@ type EmployeeItem = {
   NAMA?: string;
   JOBSITE?: string;
   ATASAN1?: string;
+  NAMA_ATASAN1?: string;
   ATASAN2?: string;
+  NAMA_ATASAN2?: string;
   ACTORTYPE?: string;
   EMAIL?: string;
 };
@@ -63,6 +65,8 @@ interface FormState {
   CreatedBy: string;
   Atasan1: string;
   Atasan2: string;
+  NamaAtasan1: string;
+  NamaAtasan2: string;
 
   Judul: string;
   Masalah: string;
@@ -558,7 +562,7 @@ export function SuggestionSystem({ user, onBack, onSubmit }: SuggestionSystemPro
         const res = await fetch(url, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: 1, actorType: "Creator" }),
+          body: JSON.stringify({ action: 1, jobsite: user.jobsite }),
           credentials: "include",
           signal: ctrl.signal,
         });
@@ -626,12 +630,17 @@ export function SuggestionSystem({ user, onBack, onSubmit }: SuggestionSystemPro
       const nama = safeStr(opt?.raw?.NAMA, "");
       const atasan1 = safeStr(opt?.raw?.ATASAN1, "");
       const atasan2 = safeStr(opt?.raw?.ATASAN2, "");
+      const nama_atasan1 = safeStr(opt?.raw?.NAMA_ATASAN1, "");
+      const nama_atasan2 = safeStr(opt?.raw?.NAMA_ATASAN2, "");
 
       setValidationError("");
       setField("nrpSelected", nrp);
       setField("CreatedBy", nrp);
       setField("Atasan1", atasan1);
       setField("Atasan2", atasan2);
+      setField("NamaAtasan1", nama_atasan1);
+      setField("NamaAtasan2", nama_atasan2);
+
 
       if (!nrp) {
         retrieveAbortRef.current?.abort();
@@ -933,14 +942,14 @@ export function SuggestionSystem({ user, onBack, onSubmit }: SuggestionSystemPro
 
                 {!!state.CreatedBy && (
                   <>
-                    <p className="text-xs text-muted-foreground">
+                    {/* <p className="text-xs text-muted-foreground">
                       CreatedBy: <span className="font-medium">{state.CreatedBy}</span>
+                    </p> */}
+                    <p className="text-xs text-muted-foreground">
+                      Atasan 1: <span className="font-medium">{state.Atasan1 + " - " + state.NamaAtasan1}</span>
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Atasan 1: <span className="font-medium">{state.Atasan1}</span>
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Atasan 2: <span className="font-medium">{state.Atasan2}</span>
+                      Atasan 2: <span className="font-medium">{state.Atasan2 + " - " + state.NamaAtasan2}</span>
                     </p>
                   </>
                 )}

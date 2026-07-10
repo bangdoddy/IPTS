@@ -25,7 +25,15 @@ type ApprovalQccRow = {
   stepDesc?: string;
   stepCreatedAt?: string;
   stepCreatedBy?: string;
+  cost?: number;
+  costType?: string;
 };
+
+function formatThousandSeparator(val: number | string): string {
+  const num = Math.round(Number(val));
+  if (isNaN(num)) return "-";
+  return String(num).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
 
 type ApiResponse<T> = {
   responseCode?: number;
@@ -317,6 +325,51 @@ export function ApprovalQcc() {
                   </div>
                 </div>
               </div>
+
+              {Number(detail.step) === 4 && normalizeStatus(detail.stepStatus) === "submitted" && (
+                <div className="border border-orange-200 rounded-lg p-4 bg-orange-50/50 space-y-4">
+                  <div className="space-y-1">
+                    <label className="text-md font-semibold text-orange-800">
+                      Cost ( in USD )
+                    </label>
+                    <div className="p-2">
+                      <label className="text-sm font-medium text-slate-800">
+                        {detail.cost != null ? formatThousandSeparator(detail.cost) : "-"}
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <label className="text-md font-semibold text-orange-800 block">
+                      Cost Type
+                    </label>
+                    <div className="flex flex-row gap-6 items-center p-2">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={Boolean(detail.costType?.includes("Cost"))}
+                          disabled
+                          className="w-4 h-4 rounded text-orange-600 border-orange-300 cursor-not-allowed accent-orange-600"
+                        />
+                        <label className="text-sm font-medium text-slate-700 cursor-not-allowed select-none">
+                          Cost
+                        </label>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={Boolean(detail.costType?.includes("Revenue"))}
+                          disabled
+                          className="w-4 h-4 rounded text-orange-600 border-orange-300 cursor-not-allowed accent-orange-600"
+                        />
+                        <label className="text-sm font-medium text-slate-700 cursor-not-allowed select-none">
+                          Revenue
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="border rounded-lg p-4 bg-gray-50">
                 <div className="font-semibold mb-2">Dokumen Step</div>

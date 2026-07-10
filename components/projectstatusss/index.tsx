@@ -1123,7 +1123,7 @@ export function Home() {
       createdAtTo: toIsoOrNull(endDate, true),
       keyword: keywordDebounced,
       jobsite: user?.jobsite,
-      status: '', //HISTORICAL_SS_STATUS,
+      status: HISTORICAL_SS_STATUS,
       projectType: PROJECT_TYPE_NUMBER,
       nrp: userNrp,
     }),
