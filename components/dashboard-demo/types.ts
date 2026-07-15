@@ -49,6 +49,7 @@ export type Project = {
   kapanDicapai?: string;
   kondisiSebelum?: string;
   supportingDocument?: string;
+  Cost?: string,
   createdBy?: string;
   createdAt?: Date | string;
   updatedBy?: string;

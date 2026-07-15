@@ -26,6 +26,7 @@ export const PATHS = {
     projectstatusss: "/project-status-ss",
     trackingss: "/trackingSS",
     trackingqcc: "/trackingQCC",
+    trackingqcp: "/trackingQCP",
     projectstatussdraft: "/project-status-draft",
     projectstatusqcp: "/project-status-qcp",
     projectstatusqcc: "/project-status-qcc",

@@ -136,24 +136,12 @@ export function AppShell({ user }: { user: any }) {
     () => [
       { key: "home", label: "Home", to: PATHS.app.home, icon: <HomeIcon className="w-5 h-5" /> },
       { key: "create", label: "Create Idea or Project", to: PATHS.app.create, icon: <Lightbulb className="w-5 h-5" /> },
-      { key: "dashboard", label: "Dashboard", to: PATHS.app.dashboard, icon: <BarChart3 className="w-5 h-5" /> },
-      {
-        key: "tracking", label: "Projects Tracking",
+      (auth.actorType === "REVIEWER" || auth.actorType === "SUPERIOR") ? {
+        key: "dashboard",
+        label: "Dashboard",
         to: PATHS.app.dashboard,
-        icon: <Search className="w-5 h-5" />,
-        children: [
-          {
-            key: "tracking-ss",
-            label: "SS Tracking",
-            children: [
-              { key: "tracking-ss", label: "Projects", to: PATHS.app.trackingss },
-              { key: "tracking-ss-draft", label: "Drafts", to: PATHS.app.projectstatussdraft },
-            ],
-          },
-          { key: "tracking-qcc", label: "QCC Tracking", to: PATHS.app.trackingqcc },
-          { key: "tracking-qcp", label: "QCP Tracking", to: PATHS.app.dashboard },
-        ],
-      },
+        icon: <BarChart3 className="w-5 h-5" />
+      } : null,
       (auth.actorType === "REVIEWER" || auth.actorType === "SUPERIOR") ? {
         key: "master",
         label: "Master",
@@ -170,6 +158,23 @@ export function AppShell({ user }: { user: any }) {
             : []),
         ],
       } : null,
+      {
+        key: "tracking", label: "Projects Tracking",
+        to: PATHS.app.dashboard,
+        icon: <Search className="w-5 h-5" />,
+        children: [
+          {
+            key: "tracking-ss",
+            label: "SS Tracking",
+            children: [
+              { key: "tracking-ss", label: "Projects", to: PATHS.app.trackingss },
+              { key: "tracking-ss-draft", label: "Drafts", to: PATHS.app.projectstatussdraft },
+            ],
+          },
+          { key: "tracking-qcc", label: "QCC Tracking", to: PATHS.app.trackingqcc },
+          { key: "tracking-qcp", label: "QCP Tracking", to: PATHS.app.trackingqcp },
+        ],
+      },
       {
         key: "historical",
         label: "Historical Projects",

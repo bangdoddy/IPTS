@@ -1,73 +1,467 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import {
   Folder,
   TrendingUp,
   Clock,
   Rocket,
-  Target,
-  Flag,
-  FileText,
-  Search,
-  PenTool,
-  Code2,
-  Beaker,
-  PlayCircle,
-  Trophy,
-  Eye,
-  User
 } from "lucide-react";
 import { Card, CardContent } from "../../ui/card";
-import { Badge } from "../../ui/badge";
 import { Button } from "../../ui/button";
 import { Project } from "../types";
+import { API } from "../../../config";
+import { authUserOrNull } from "../../../libs/auth";
+
+const TABLE_HEADER_BG = "#1b305b";
+const TARGET_COL_BG = "rgba(56, 189, 248, 0.28)";
+const TARGET_COL_BG_HEADER = "rgba(56, 189, 248, 0.45)";
+const TARGET_COL_BORDER = "rgba(14, 165, 233, 0.75)";
+const TABLE_BORDER_CLASS = "border border-slate-300";
+const TABLE_BORDER_Y_CLASS = "border-y border-slate-300";
+const HEADER_CELL_CLASS =
+  "px-3 py-3 font-bold text-center border border-white text-base leading-snug text-white";
+const DEPT_HEAD_HEADER_CLASS =
+  "px-3 py-3 font-bold text-center border border-white text-base leading-snug text-white";
+const STEP_HEADER_CELL_CLASS =
+  "px-2 py-2 font-bold text-center border border-white text-sm leading-snug text-white";
+const DEPT_HEAD_CELL_CLASS =
+  "px-3 py-3 text-left align-middle bg-white group-hover:bg-slate-50/50 min-w-0 normal-case";
+const TABLE_ROW_TEXT_CLASS = "text-[9px] leading-snug normal-case";
+
+/** Column widths (11 cols): dept, project, 8× step, status */
+const TABLE_COL_WIDTHS = ["10%", "22%", "7%", "7%", "7%", "7%", "7%", "7%", "7%", "7%", "12%"] as const;
+
+type AnyStatus = string;
+
+type QccApiRow = {
+  id?: number | string;
+  itemKey?: string;
+  nrpSelected?: string;
+  lokasi?: string;
+  department?: string;
+  section?: string;
+  namaGroupQccp?: string;
+  fasilitatorNrp?: string;
+  fasilitator?: string;
+  fasilitatorDepartment?: string;
+  fasilitatorSection?: string;
+  leaderNrp?: string;
+  leader?: string;
+  leaderDepartment?: string;
+  leaderSection?: string;
+  members?: any[];
+  temaQccp?: string;
+  kpiDidukung?: string;
+  masalahPeluang1?: string;
+  masalahPeluang2?: string;
+  masalahPeluang3?: string;
+  masalahPeluang4?: string;
+  apaTargetnya?: string;
+  berapaTargetnya?: string;
+  kapanDicapai?: string;
+  kondisiSebelum?: string;
+  supportingDocument?: string;
+  createdBy?: string;
+  createdAt?: string;
+  updatedBy?: string;
+  updatedAt?: string;
+  status?: string;
+  step: number;
+  stepStatus?: string;
+  cost?: string;
+};
+
+function mapQccApiRowToProject(row: QccApiRow): Project {
+  return {
+    id: row.id,
+    type: "QCC",
+    itemKey: row.itemKey,
+    nrpSelected: row.nrpSelected,
+    lokasi: row.lokasi,
+    department: row.department,
+    section: row.section,
+    namaGroupQccp: row.namaGroupQccp,
+    fasilitatorNrp: row.fasilitatorNrp,
+    fasilitator: row.fasilitator,
+    fasilitatorDepartment: row.fasilitatorDepartment,
+    fasilitatorSection: row.fasilitatorSection,
+    leaderNrp: row.leaderNrp,
+    leader: row.leader,
+    leaderDepartment: row.leaderDepartment,
+    leaderSection: row.leaderSection,
+    members: row.members,
+    temaQccp: row.temaQccp,
+    kpiDidukung: row.kpiDidukung,
+    masalahPeluang1: row.masalahPeluang1,
+    masalahPeluang2: row.masalahPeluang2,
+    masalahPeluang3: row.masalahPeluang3,
+    masalahPeluang4: row.masalahPeluang4,
+    apaTargetnya: row.apaTargetnya,
+    berapaTargetnya: row.berapaTargetnya,
+    kapanDicapai: row.kapanDicapai,
+    kondisiSebelum: row.kondisiSebelum,
+    supportingDocument: row.supportingDocument,
+    createdBy: row.createdBy,
+    createdAt: row.createdAt,
+    updatedBy: row.updatedBy,
+    updatedAt: row.updatedAt,
+    judulSS: row.namaGroupQccp ?? "-",
+    pembuatSS: row.leader ?? "-",
+    status: (row.status as AnyStatus) ?? "registered",
+    submittedDate: row.createdAt ? new Date(row.createdAt) : new Date(),
+    step: row.step,
+    stepStatus: row.stepStatus,
+    leaderName: row.leader,
+    Cost: row.cost || '0'
+  };
+}
+
+function mapQcpApiRowToProject(row: QccApiRow): Project {
+  return {
+    id: row.id,
+    type: "QCP",
+    itemKey: row.itemKey,
+    nrpSelected: row.nrpSelected,
+    lokasi: row.lokasi,
+    department: row.department,
+    section: row.section,
+    namaGroupQccp: row.namaGroupQccp,
+    fasilitatorNrp: row.fasilitatorNrp,
+    fasilitator: row.fasilitator,
+    fasilitatorDepartment: row.fasilitatorDepartment,
+    fasilitatorSection: row.fasilitatorSection,
+    leaderNrp: row.leaderNrp,
+    leader: row.leader,
+    leaderDepartment: row.leaderDepartment,
+    leaderSection: row.leaderSection,
+    members: row.members,
+    temaQccp: row.temaQccp,
+    kpiDidukung: row.kpiDidukung,
+    masalahPeluang1: row.masalahPeluang1,
+    masalahPeluang2: row.masalahPeluang2,
+    masalahPeluang3: row.masalahPeluang3,
+    masalahPeluang4: row.masalahPeluang4,
+    apaTargetnya: row.apaTargetnya,
+    berapaTargetnya: row.berapaTargetnya,
+    kapanDicapai: row.kapanDicapai,
+    kondisiSebelum: row.kondisiSebelum,
+    supportingDocument: row.supportingDocument,
+    createdBy: row.createdBy,
+    createdAt: row.createdAt,
+    updatedBy: row.updatedBy,
+    updatedAt: row.updatedAt,
+    judulSS: row.namaGroupQccp ?? "-",
+    pembuatSS: row.leader ?? "-",
+    status: (row.status as AnyStatus) ?? "registered",
+    submittedDate: row.createdAt ? new Date(row.createdAt) : new Date(),
+    step: row.step,
+    stepStatus: row.stepStatus,
+    leaderName: row.leader,
+    Cost: row.cost || '0'
+  };
+}
+
+/** Convert ALL CAPS / mixed text to Title Case for display. */
+function toTitleCase(text: string): string {
+  return String(text ?? "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((word) => {
+      const match = word.match(/^([^A-Za-z0-9]*)([A-Za-z0-9]+)([^A-Za-z0-9]*)$/);
+      if (!match) return word;
+      const [, lead, core, trail] = match;
+      return `${lead}${core.charAt(0).toUpperCase()}${core.slice(1).toLowerCase()}${trail}`;
+    })
+    .join(" ");
+}
+
+function ProjectDescription({ text }: { text: string }) {
+  const displayText = useMemo(() => toTitleCase(text), [text]);
+  const [expanded, setExpanded] = useState(false);
+  const [isClamped, setIsClamped] = useState(false);
+  const textRef = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    const el = textRef.current;
+    if (!el || expanded) return;
+    setIsClamped(el.scrollHeight > el.clientHeight + 1);
+  }, [text, expanded]);
+
+  return (
+    <div className="min-w-0">
+      <p
+        ref={textRef}
+        className={`text-[9px] text-slate-500 mt-1 font-medium leading-snug break-words normal-case ${expanded ? "" : "line-clamp-3"
+          }`}
+        style={{ textTransform: "none" }}
+      >
+        {displayText}
+      </p>
+      {(isClamped || expanded) && (
+        <button
+          type="button"
+          onClick={() => setExpanded((prev) => !prev)}
+          className="mt-1 text-[9px] font-semibold text-blue-600 hover:text-blue-800 hover:underline"
+        >
+          {expanded ? "Show less" : "Show more"}
+        </button>
+      )}
+    </div>
+  );
+}
+
+function SummaryStatCard(props: {
+  icon: React.ReactNode;
+  iconBg: string;
+  label: string;
+  labelColor?: string;
+  value: number;
+  badge?: string;
+  badgeBg?: string;
+  badgeColor?: string;
+  active?: boolean;
+  onClick?: () => void;
+}) {
+  const clickable = Boolean(props.onClick);
+
+  return (
+    <Card
+      className={`shadow-sm border bg-white rounded-2xl overflow-hidden h-full transition-all ${clickable ? "cursor-pointer hover:shadow-md hover:border-slate-200" : "border-slate-100"
+        } ${props.active ? "ring-2 ring-blue-500 border-blue-300 shadow-md" : "border-slate-100"}`}
+      onClick={props.onClick}
+      role={clickable ? "button" : undefined}
+      tabIndex={clickable ? 0 : undefined}
+      onKeyDown={
+        clickable
+          ? (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              props.onClick?.();
+            }
+          }
+          : undefined
+      }
+    >
+      <CardContent className="p-4 flex items-center justify-between gap-3 min-h-[88px]">
+        <div className="flex items-center gap-3 min-w-0">
+          <div
+            className="w-11 h-11 rounded-full flex items-center justify-center shrink-0"
+            style={{ backgroundColor: props.iconBg }}
+          >
+            {props.icon}
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold leading-tight" style={{ color: props.labelColor ?? "#0f172a" }}>
+              {props.label}
+            </p>
+            <div className="flex items-baseline gap-1.5 mt-1">
+              <span className="text-2xl font-bold text-slate-900 leading-none">{props.value}</span>
+              <span className="text-xs text-slate-400 font-medium">Projects</span>
+            </div>
+          </div>
+        </div>
+        {props.badge ? (
+          <span
+            className="shrink-0 rounded-full px-2.5 py-1 text-xs font-bold whitespace-nowrap"
+            style={{
+              backgroundColor: props.badgeBg ?? "#f1f5f9",
+              color: props.badgeColor ?? "#334155",
+            }}
+          >
+            {props.badge}
+          </span>
+        ) : null}
+      </CardContent>
+    </Card>
+  );
+}
+
+function StatusBadge(props: { status: "late" | "on-track" | "ahead"; targetStep: number }) {
+  const config = {
+    late: {
+      wrapBg: "#fef2f2",
+      wrapBorder: "#fecaca",
+      dot: "#ef4444",
+      label: "#b91c1c",
+      sub: "#dc2626",
+      text: "Late",
+    },
+    "on-track": {
+      wrapBg: "#f0fdf4",
+      wrapBorder: "#bbf7d0",
+      dot: "#22c55e",
+      label: "#15803d",
+      sub: "#16a34a",
+      text: "On Track",
+    },
+    ahead: {
+      wrapBg: "#fff7ed",
+      wrapBorder: "#fed7aa",
+      dot: "#f97316",
+      label: "#c2410c",
+      sub: "#ea580c",
+      text: "Ahead",
+    },
+  }[props.status];
+
+  return (
+    <div
+      className={`inline-flex flex-col items-center justify-center gap-1 rounded-lg border px-3 py-2 ${TABLE_ROW_TEXT_CLASS}`}
+      style={{
+        backgroundColor: config.wrapBg,
+        borderColor: config.wrapBorder,
+      }}
+    >
+      <div className="flex items-center gap-1.5 px-0.5">
+        <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: config.dot }} />
+        <span className={`${TABLE_ROW_TEXT_CLASS} font-bold whitespace-nowrap`} style={{ color: config.label }}>
+          {config.text}
+        </span>
+      </div>
+      <span className={`${TABLE_ROW_TEXT_CLASS} font-normal whitespace-nowrap px-0.5`} style={{ color: config.sub }}>
+        (Plan: Step {props.targetStep})
+      </span>
+    </div>
+  );
+}
+
+function getSegmentColor(isPassed: boolean, status: "on-track" | "late" | "ahead") {
+  if (!isPassed) return "#e2e8f0";
+  if (status === "late") return "#ef4444";
+  if (status === "on-track") return "#22c55e";
+  return "#f97316";
+}
+
+/** Show primary leader only (data may store co-leaders as "Name A / Name B"). */
+function getLeaderDisplayName(leader?: string): string {
+  const raw = String(leader ?? "").trim();
+  if (!raw) return "Unnamed Head";
+  const primary = raw.split(/\s*\/\s*/)[0]?.trim();
+  return toTitleCase(primary || raw);
+}
+
+/** Target step follows calendar month (Jan=1 … Aug=8), capped at 8. */
+function getTargetStepFromServerDate(date: Date = new Date()): number {
+  const month = date.getMonth() + 1;
+  return Math.min(Math.max(month, 1), 8);
+}
+
+function getCalendarMonth(date: Date = new Date()): number {
+  return date.getMonth() + 1;
+}
+
+/**
+ * Jan–Aug: compare actual step vs current month (target step).
+ * Sep–Dec: deadline was Step 8 in August — still at Step 8 counts as late.
+ */
+function getProjectStatus(
+  actualStep: number,
+  targetStep: number,
+  calendarMonth: number
+): "on-track" | "late" | "ahead" {
+  if (calendarMonth >= 9) {
+    if (actualStep < 8) return "late";
+    if (actualStep === 8) return "late";
+    return "ahead";
+  }
+
+  if (actualStep < targetStep) return "late";
+  if (actualStep === targetStep) return "on-track";
+  return "ahead";
+}
+
+type StatusFilter = "all" | "on-track" | "late" | "ahead";
 
 export function QccProjectMonitoringSummary(props: {
   filteredProjects: Project[];
   showDetailModal: (project: Project) => void;
   type?: "QCC" | "QCP";
 }) {
-  const [targetStep, setTargetStep] = useState<number>(7);
   const typeFilter = props.type || "QCC";
+
+  const serverNow = useMemo(() => new Date(), []);
+  const calendarMonth = useMemo(() => getCalendarMonth(serverNow), [serverNow]);
+  const targetStep = useMemo(() => getTargetStepFromServerDate(serverNow), [serverNow]);
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<string>("10");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
 
-  // Filter projects by type
+  const [apiProjects, setApiProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    async function loadData() {
+      setLoading(true);
+      setError("");
+      try {
+        const user = authUserOrNull();
+        const nrp = user?.nrp || "";
+        const url = typeFilter === "QCP" ? API.QCP_LIST : API.QCC_LIST;
+
+        const resp = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ CreatedBy: '', RefreshKey: 0, Status: '' }),
+        });
+
+        if (!resp.ok) {
+          throw new Error(`HTTP error! status: ${resp.status}`);
+        }
+
+        const json = await resp.json();
+        if (active) {
+          const rawData = Array.isArray(json?.data) ? json.data : [];
+          //console.log(rawData);
+          const mapped = rawData.map(typeFilter === "QCP" ? mapQcpApiRowToProject : mapQccApiRowToProject);
+          setApiProjects(mapped);
+          setLoaded(true);
+        }
+      } catch (err: any) {
+        if (active) {
+          setError(err?.message || "Failed to load data from API");
+        }
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    }
+    loadData();
+    return () => {
+      active = false;
+    };
+  }, [typeFilter]);
+
   const targetProjects = useMemo(() => {
+    if (loaded) return apiProjects;
     return props.filteredProjects.filter((p) => p.type === typeFilter);
-  }, [props.filteredProjects, typeFilter]);
+  }, [apiProjects, loaded, props.filteredProjects, typeFilter]);
 
-  // Project statistics based on target step
   const stats = useMemo(() => {
-    let total = targetProjects.length;
+    const total = targetProjects.length;
     let onTrack = 0;
     let late = 0;
     let ahead = 0;
 
     const listWithStatus = targetProjects.map((p) => {
-      // Clamp step between 1 and 8
       const actualStep = Math.min(
         8,
         Math.max(1, typeof p.step === "number" ? p.step : parseInt(String(p.step)) || 1)
       );
 
-      let status: "on-track" | "late" | "ahead" = "on-track";
-      if (actualStep < targetStep) {
-        status = "late";
-        late++;
-      } else if (actualStep === targetStep) {
-        status = "on-track";
-        onTrack++;
-      } else {
-        status = "ahead";
-        ahead++;
-      }
+      const status = getProjectStatus(actualStep, targetStep, calendarMonth);
 
-      return {
-        project: p,
-        actualStep,
-        status,
-      };
+      if (status === "late") late++;
+      else if (status === "on-track") onTrack++;
+      else ahead++;
+
+      return { project: p, actualStep, status };
     });
 
     const getPercentage = (count: number) => {
@@ -85,390 +479,253 @@ export function QccProjectMonitoringSummary(props: {
       aheadPct: getPercentage(ahead),
       list: listWithStatus,
     };
-  }, [targetProjects, targetStep]);
+  }, [targetProjects, targetStep, calendarMonth]);
 
-  // Paginated list calculation
+  const filteredList = useMemo(() => {
+    if (statusFilter === "all") return stats.list;
+    return stats.list.filter((item) => item.status === statusFilter);
+  }, [stats.list, statusFilter]);
+
+  const filteredTotal = filteredList.length;
+
   const paginatedList = useMemo(() => {
-    if (pageSize === "all") {
-      return stats.list;
-    }
-    console.log(stats.list);
+    if (pageSize === "all") return filteredList;
     const size = parseInt(pageSize) || 10;
     const startIndex = (currentPage - 1) * size;
-    const endIndex = startIndex + size;
-    return stats.list.slice(startIndex, endIndex);
-  }, [stats.list, currentPage, pageSize]);
+    return filteredList.slice(startIndex, startIndex + size).sort((a, b) => Number(b.project.Cost || 0) - Number(a.project.Cost || 0));
+  }, [filteredList, currentPage, pageSize]);
 
-  // Reset page number on filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [stats.list.length, pageSize]);
+  }, [filteredTotal, pageSize, statusFilter]);
 
-  // Pagination metadata
   const totalPages = useMemo(() => {
-    if (pageSize === "all" || stats.total === 0) return 1;
+    if (pageSize === "all" || filteredTotal === 0) return 1;
     const size = parseInt(pageSize) || 10;
-    return Math.max(1, Math.ceil(stats.total / size));
-  }, [stats.total, pageSize]);
+    return Math.max(1, Math.ceil(filteredTotal / size));
+  }, [filteredTotal, pageSize]);
 
   const showingStart = useMemo(() => {
-    if (stats.total === 0) return 0;
+    if (filteredTotal === 0) return 0;
     if (pageSize === "all") return 1;
     const size = parseInt(pageSize) || 10;
     return (currentPage - 1) * size + 1;
-  }, [stats.total, currentPage, pageSize]);
+  }, [filteredTotal, currentPage, pageSize]);
 
   const showingEnd = useMemo(() => {
-    if (pageSize === "all") return stats.total;
+    if (pageSize === "all") return filteredTotal;
     const size = parseInt(pageSize) || 10;
-    return Math.min(stats.total, currentPage * size);
-  }, [stats.total, currentPage, pageSize]);
+    return Math.min(filteredTotal, currentPage * size);
+  }, [filteredTotal, currentPage, pageSize]);
 
-  // Steps configuration
-  const STEPS = useMemo(() => [
-    { num: 1, name: "Initiation", icon: Flag },
-    { num: 2, name: "Planning", icon: FileText },
-    { num: 3, name: "Analysis", icon: Search },
-    { num: 4, name: "Design", icon: PenTool },
-    { num: 5, name: "Development", icon: Code2 },
-    { num: 6, name: "Testing", icon: Beaker },
-    { num: 7, name: "Implementation", icon: PlayCircle },
-    { num: 8, name: "Closure", icon: Trophy }
-  ], []);
-
-  // Avatar color map based on leader/facilitator name hash
-  const getAvatarColor = (name: string) => {
-    const colors = [
-      "bg-purple-500 text-white",
-      "bg-emerald-500 text-white",
-      "bg-amber-500 text-white",
-      "bg-blue-500 text-white",
-      "bg-indigo-500 text-white",
-      "bg-pink-500 text-white",
-      "bg-teal-500 text-white"
-    ];
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) {
-      hash = name.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    const index = Math.abs(hash) % colors.length;
-    return colors[index];
-  };
-
-  const getInitials = (name: string) => {
-    if (!name) return "?";
-    return name
-      .split(/\s+/)
-      .map((part) => part[0])
-      .slice(0, 2)
-      .join("")
-      .toUpperCase();
-  };
+  const STEPS = useMemo(
+    () =>
+      Array.from({ length: 8 }, (_, i) => ({
+        num: i + 1,
+        name: `Step ${i + 1}`,
+      })),
+    []
+  );
 
   return (
-    <div className="space-y-8 mt-6">
-      {/* Top Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Total Project */}
-        <Card className="shadow-md border border-slate-100 bg-white rounded-2xl overflow-hidden hover:shadow-lg transition-shadow duration-300 p-3">
-          <CardContent className="p-5 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
-              <Folder className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Project</p>
-              <div className="flex items-baseline gap-1 mt-1">
-                <span className="text-2xl font-black text-slate-800">{stats.total}</span>
-                <span className="text-xs text-slate-400 font-medium">Projects</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* On Track */}
-        <Card className="shadow-md border border-slate-100 bg-white rounded-2xl overflow-hidden hover:shadow-lg transition-shadow duration-300 p-3">
-          <CardContent className="p-5 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-green-50 flex items-center justify-center text-green-600 shrink-0">
-                <TrendingUp className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">On Track</p>
-                <div className="flex items-baseline gap-1 mt-1">
-                  <span className="text-2xl font-black text-slate-800">{stats.onTrack}</span>
-                  <span className="text-xs text-slate-400 font-medium">Projects</span>
-                </div>
-              </div>
-            </div>
-            <Badge className="bg-green-50 text-green-700 hover:bg-green-50 border border-green-100 rounded-lg px-2.5 py-1 text-xs font-bold">
-              {stats.onTrackPct}
-            </Badge>
-          </CardContent>
-        </Card>
-
-        {/* Late */}
-        <Card className="shadow-md border border-slate-100 bg-white rounded-2xl overflow-hidden hover:shadow-lg transition-shadow duration-300 p-3">
-          <CardContent className="p-5 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center text-red-500 shrink-0">
-                <Clock className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Late</p>
-                <div className="flex items-baseline gap-1 mt-1">
-                  <span className="text-2xl font-black text-slate-800">{stats.late}</span>
-                  <span className="text-xs text-slate-400 font-medium">Projects</span>
-                </div>
-              </div>
-            </div>
-            <Badge className="bg-red-50 text-red-600 hover:bg-red-50 border border-red-100 rounded-lg px-2.5 py-1 text-xs font-bold">
-              {stats.latePct}
-            </Badge>
-          </CardContent>
-        </Card>
-
-        {/* Ahead */}
-        <Card className="shadow-md border border-slate-100 bg-white rounded-2xl overflow-hidden hover:shadow-lg transition-shadow duration-300 p-3">
-          <CardContent className="p-5 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-500 shrink-0">
-                <Rocket className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Ahead</p>
-                <div className="flex items-baseline gap-1 mt-1">
-                  <span className="text-2xl font-black text-slate-800">{stats.ahead}</span>
-                  <span className="text-xs text-slate-400 font-medium">Projects</span>
-                </div>
-              </div>
-            </div>
-            <Badge className="bg-orange-50 text-orange-600 hover:bg-orange-50 border border-orange-100 rounded-lg px-2.5 py-1 text-xs font-bold">
-              {stats.aheadPct}
-            </Badge>
-          </CardContent>
-        </Card>
+    <div className="mt-6">
+      <div className="grid grid-cols-4 gap-3">
+        <SummaryStatCard
+          icon={<Folder className="w-5 h-5" style={{ color: "#2563eb" }} />}
+          iconBg="#eff6ff"
+          label="Total Project"
+          value={stats.total}
+          active={statusFilter === "all"}
+          onClick={() => setStatusFilter("all")}
+        />
+        <SummaryStatCard
+          icon={<TrendingUp className="w-5 h-5" style={{ color: "#16a34a" }} />}
+          iconBg="#f0fdf4"
+          label="On Track"
+          labelColor="#16a34a"
+          value={stats.onTrack}
+          badge={stats.onTrackPct}
+          badgeBg="#f0fdf4"
+          badgeColor="#16a34a"
+          active={statusFilter === "on-track"}
+          onClick={() => setStatusFilter("on-track")}
+        />
+        <SummaryStatCard
+          icon={<Clock className="w-5 h-5" style={{ color: "#ef4444" }} />}
+          iconBg="#fef2f2"
+          label="Late"
+          value={stats.late}
+          badge={stats.latePct}
+          badgeBg="#fef2f2"
+          badgeColor="#ef4444"
+          active={statusFilter === "late"}
+          onClick={() => setStatusFilter("late")}
+        />
+        <SummaryStatCard
+          icon={<Rocket className="w-5 h-5" style={{ color: "#f97316" }} />}
+          iconBg="#fff7ed"
+          label="Ahead"
+          value={stats.ahead}
+          badge={stats.aheadPct}
+          badgeBg="#fff7ed"
+          badgeColor="#f97316"
+          active={statusFilter === "ahead"}
+          onClick={() => setStatusFilter("ahead")}
+        />
       </div>
 
-      {/* Target Step Banner */}
-      <div className="bg-gradient-to-r from-blue-50/20 via-blue-50/50 to-white border border-blue-100 shadow-sm rounded-3xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 hidden">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-blue-100/50 flex items-center justify-center text-blue-900 shrink-0">
-            <Target className="w-7 h-7" />
-          </div>
-          <div>
-            <span className="text-[10px] font-black text-blue-900/50 uppercase tracking-widest block">Current Target Step</span>
-            <span className="text-2xl font-black text-blue-900">Posisi saat ini</span>
-            <p className="text-xs text-slate-500 font-medium mt-1">
-              Berdasarkan timeline plan, semua project seharusnya sudah mencapai minimal Step {targetStep} pada bulan ini.
-            </p>
-          </div>
-        </div>
+      <div aria-hidden className="h-28" />
 
-        {/* Timeline Selector */}
-        <div className="flex items-center gap-4 flex-1 max-w-xl relative px-4 py-8">
-          <div className="absolute top-1/2 left-4 right-4 h-0.5 bg-slate-200 -translate-y-1/2 z-0" />
-          {Array.from({ length: 8 }).map((_, idx) => {
-            const stepNum = idx + 1;
-            const isTarget = stepNum === targetStep;
-            return (
-              <div key={idx} className="flex-1 flex flex-col items-center relative z-10">
-                {isTarget && (
-                  <div className="absolute -top-10 bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-md whitespace-nowrap animate-bounce">
-                    Posisi saat ini
-                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-blue-600 rotate-45" />
-                  </div>
-                )}
-                <button
-                  onClick={() => setTargetStep(stepNum)}
-                  className={`rounded-full flex items-center justify-center font-bold text-sm transition-all shadow-md ${isTarget
-                    ? "w-8 h-8 bg-blue-600 text-white ring-4 ring-blue-100 scale-110"
-                    : "w-5 h-5 bg-white text-slate-600 hover:bg-slate-50 border border-slate-200"
-                    }`}
-                />
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Peak Mountain SVG */}
-        <div className="hidden lg:block shrink-0 pl-6 border-l border-slate-200/60">
-          <svg viewBox="0 0 120 80" className="w-24 h-16">
-            <path d="M20 70 L50 35 L65 50 L95 20 L115 70 Z" fill="#f1f5f9" />
-            <path d="M40 70 L80 25 L115 70 Z" fill="#1e3a8a" />
-            <path d="M80 25 L92 40 L85 70 Z" fill="#172554" />
-            <polygon points="80,25 72,34 77,36 80,33 83,36 88,34" fill="#ffffff" />
-            <line x1="80" y1="25" x2="80" y2="10" stroke="#1e3a8a" strokeWidth="2" />
-            <path d="M80 10 L95 15 L80 20 Z" fill="#3b82f6" />
-          </svg>
-        </div>
-      </div>
-
-      {/* Main Table */}
-      <div className="overflow-x-auto rounded-2xl border border-slate-100 shadow-sm bg-white mt-4">
-        <table className="w-full text-sm text-left border border-slate-200 border-collapse">
+      <div className="pt-4 bg-white">
+        <table className={`w-full table-fixed text-[11px] text-left border-collapse normal-case ${TABLE_BORDER_CLASS}`}>
+          <colgroup>
+            {TABLE_COL_WIDTHS.map((width, i) => (
+              <col key={i} style={{ width }} />
+            ))}
+          </colgroup>
           <thead>
-            {/* Header Row 1 */}
-            <tr className="bg-[#1b305b] text-white" style={{ backgroundColor: "#1b305b", color: "#ffffff" }}>
-              <th rowSpan={2} style={{ backgroundColor: "#1b305b", color: "#ffffff" }} className="px-6 py-4 font-bold text-center border border-slate-700 text-xs uppercase tracking-wider min-w-[150px] bg-[#1b305b] text-white">
+            <tr style={{ backgroundColor: TABLE_HEADER_BG, color: "#ffffff" }}>
+              <th
+                rowSpan={2}
+                className={DEPT_HEAD_HEADER_CLASS}
+                style={{ backgroundColor: TABLE_HEADER_BG, border: "1.5px solid gray" }}
+              >
                 Department Head
               </th>
-              <th rowSpan={2} style={{ backgroundColor: "#1b305b", color: "#ffffff" }} className="px-6 py-4 font-bold text-center border-b border-slate-700 text-xs uppercase tracking-wider min-w-[150px] bg-[#1b305b] text-white">
+              <th
+                rowSpan={2}
+                className={HEADER_CELL_CLASS}
+                style={{ backgroundColor: TABLE_HEADER_BG, border: "1.5px solid gray" }}
+              >
                 Project
               </th>
-              <th colSpan={8} style={{ backgroundColor: "#1b305b", color: "#ffffff" }} className="px-4 py-2 font-bold text-center border border-slate-700 text-xs uppercase tracking-wider bg-[#1b305b] text-white">
-                Progress (8 Step)
+              <th
+                colSpan={8}
+                className={HEADER_CELL_CLASS}
+                style={{ backgroundColor: TABLE_HEADER_BG, border: "1.5px solid gray" }}
+              >
+                Progress (8 Steps)
               </th>
-              <th rowSpan={2} style={{ backgroundColor: "#1b305b", color: "#ffffff" }} className="px-6 py-4 font-bold text-center border border-slate-700 text-xs uppercase tracking-wider min-w-[120px] bg-[#1b305b] text-white">
+              <th
+                rowSpan={2}
+                className={HEADER_CELL_CLASS}
+                style={{ backgroundColor: TABLE_HEADER_BG, border: "1.5px solid gray" }}
+              >
                 Status
               </th>
-
             </tr>
-            {/* Header Row 2 */}
-            <tr className="bg-[#1b305b] text-slate-300" style={{ backgroundColor: "#1b305b", color: "#cbd5e1" }}>
+            <tr style={{ backgroundColor: TABLE_HEADER_BG }}>
               {STEPS.map((step) => {
                 const isTarget = step.num === targetStep;
                 return (
                   <th
                     key={step.num}
-                    style={isTarget ? { backgroundColor: "rgba(30, 58, 138, 0.4)", color: "#93c5fd", width: "50px" } : { backgroundColor: "#1b305b", color: "#cbd5e1", width: "50px" }}
-                    className={`px-1 py-2 text-center border border-slate-700 text-[10px] font-bold w-[50px] min-w-[50px] ${isTarget
-                      ? "bg-blue-900/40 text-blue-200 border-r-2 border-dotted border-blue-400"
-                      : "bg-[#1b305b] text-slate-300"
-                      }`}
+                    title={
+                      isTarget
+                        ? `Monthly target (Month ${calendarMonth}) — ${step.name}`
+                        : step.name
+                    }
+                    className={STEP_HEADER_CELL_CLASS}
+                    style={{
+                      backgroundColor: isTarget ? TARGET_COL_BG_HEADER : TABLE_HEADER_BG,
+                      color: "#ffffff",
+                      border: "1.5px solid gray",
+                    }}
                   >
-                    <div className="flex flex-col items-center justify-center w-[50px] min-w-[50px] py-1 relative pt-4">
-                      {isTarget && (
-                        <>
-                          <span className="text-[10px] text-orange-400 absolute top-0 font-bold animate-bounce z-20">
-                            ▼
-                          </span>
-                          <div className="absolute top-4 left-1/2 -translate-x-1/2 w-0 border-l-2 border-dashed border-blue-400 h-[2000px] pointer-events-none z-10" />
-                        </>
-                      )}
-                      <span className="text-sm font-black">{step.num}</span>
-                    </div>
+                    {step.name}
                   </th>
                 );
               })}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
-            {paginatedList.map((item, index) => {
-              const { project, actualStep, status } = item;
-              const deptHeadName = project.fasilitator || project.leader || "Unnamed Head";
-              const initials = getInitials(deptHeadName);
-              const avatarCls = getAvatarColor(deptHeadName);
-
-              return (
-                <tr
-                  key={project.id || project.itemKey || index}
-                  className="hover:bg-slate-50/50 transition-colors duration-255 group"
-                >
-                  {/* Department Head */}
-                  <td className="px-6 py-4 border border-slate-200/80">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${avatarCls}`}>
-                        {initials}
-                      </div>
-                      <div>
-                        <div className="font-semibold text-slate-800 line-clamp-1">{deptHeadName}</div>
-                        <div className="text-[10px] font-medium text-slate-400 mt-0.5">
-                          {project.department}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-
-                  {/* Project Info */}
-                  <td className="px-6 py-4 border border-slate-200/80">
-                    <div className="flex flex-col">
-                      <span className="font-bold text-slate-800 font-mono text-xs">
-                        {project.itemKey || `PRJ-${String(project.id).padStart(3, "0")}`}
-                      </span>
-                      <span className="text-xs text-slate-500 mt-1 font-medium line-clamp-2" title={project.temaQccp || project.namaGroupQccp}>
-                        {project.temaQccp || project.namaGroupQccp || "No Title"}
-                      </span>
-                    </div>
-                  </td>
-
-                  {/* Progress 8 Steps */}
-                  {STEPS.map((step) => {
-                    const isPassed = step.num <= actualStep;
-                    const isTargetCol = step.num === targetStep;
-
-                    const segmentColor = isPassed
-                      ? status === "late"
-                        ? "#ef4444"
-                        : status === "on-track"
-                          ? "#22c55e"
-                          : "#f97316"
-                      : "#e2e8f0";
-
-                    const roundedClass =
-                      step.num === 1
-                        ? "rounded-l-md"
-                        : step.num === 8
-                          ? "rounded-r-md"
-                          : "rounded-none";
-
-                    return (
-                      <td
-                        key={step.num}
-                        style={{ width: "50px" }}
-                        className={`px-0 py-4 align-middle border border-slate-200/80 w-[50px] min-w-[50px] ${isTargetCol ? "bg-blue-50/20 border-r-2 border-dotted border-blue-400" : ""
-                          }`}
-                      >
-                        <div
-                          style={{ backgroundColor: segmentColor }}
-                          className={`h-3 w-full ${roundedClass} transition-all duration-300`}
-                        />
-                      </td>
-                    );
-                  })}
-
-                  {/* Status Badge */}
-                  <td className="px-6 py-4 text-center border border-slate-200/80">
-                    {status === "late" && (
-                      <div
-                        style={{ backgroundColor: "#fef2f2", color: "#b91c1c", borderColor: "#fee2e2" }}
-                        className="inline-flex items-center gap-1.5 border rounded-lg px-2.5 py-1 text-xs font-semibold"
-                      >
-                        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: "#ef4444" }} />
-                        <span>Late</span>
-                        <span className="text-[10px] font-medium" style={{ color: "rgba(239, 68, 68, 0.7)" }}>(Plan: Step {targetStep})</span>
-                      </div>
-                    )}
-                    {status === "on-track" && (
-                      <div
-                        style={{ backgroundColor: "#f0fdf4", color: "#15803d", borderColor: "#dcfce7" }}
-                        className="inline-flex items-center gap-1.5 border rounded-lg px-2.5 py-1 text-xs font-semibold"
-                      >
-                        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: "#22c55e" }} />
-                        <span>On Track</span>
-                        <span className="text-[10px] font-medium" style={{ color: "rgba(34, 197, 94, 0.7)" }}>(Plan: Step {targetStep})</span>
-                      </div>
-                    )}
-                    {status === "ahead" && (
-                      <div
-                        style={{ backgroundColor: "#fef9c3", color: "#a16207", borderColor: "#fef08a" }}
-                        className="inline-flex items-center gap-1.5 border rounded-lg px-2.5 py-1 text-xs font-semibold"
-                      >
-                        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: "#eab308" }} />
-                        <span>Ahead</span>
-                        <span className="text-[10px] font-medium" style={{ color: "rgba(202, 138, 4, 0.7)" }}>(Plan: Step {targetStep})</span>
-                      </div>
-                    )}
-                  </td>
-
-
-                </tr>
-              );
-            })}
-
-            {stats.total === 0 && (
+          <tbody className="divide-y divide-slate-300">
+            {loading ? (
               <tr>
-                <td colSpan={12} className="px-6 py-12 text-center text-slate-400 italic font-medium border border-slate-200/80">
-                  No {typeFilter} projects found
+                <td colSpan={11} className={`px-6 py-12 text-center text-slate-500 italic font-medium ${TABLE_BORDER_CLASS}`}>
+                  Loading projects from API...
+                </td>
+              </tr>
+            ) : error ? (
+              <tr>
+                <td colSpan={11} className={`px-6 py-12 text-center text-red-500 italic font-medium ${TABLE_BORDER_CLASS}`}>
+                  {error}
+                </td>
+              </tr>
+            ) : (
+              paginatedList.map((item, index) => {
+                const { project, actualStep, status } = item;
+                const deptHeadName = getLeaderDisplayName(project.leader);
+
+                return (
+                  <tr
+                    key={project.id || project.itemKey || index}
+                    className="group transition-colors"
+                  >
+                    <td className={`${DEPT_HEAD_CELL_CLASS} ${TABLE_BORDER_CLASS}`}>
+                      <div className={`font-semibold text-slate-800 ${TABLE_ROW_TEXT_CLASS} break-words`}>
+                        {deptHeadName}
+                      </div>
+                      {project.department ? (
+                        <div className={`${TABLE_ROW_TEXT_CLASS} font-xs text-gray-500 mt-0.5`}>
+                          {toTitleCase(project.department)}
+                        </div>
+                      ) : null}
+                    </td>
+
+                    <td className={`px-3 py-4 ${TABLE_BORDER_CLASS} bg-white group-hover:bg-slate-50/50 min-w-0 align-top normal-case`}>
+                      <div className="flex flex-col min-w-0">
+                        <span className={`font-bold text-slate-800 font-mono ${TABLE_ROW_TEXT_CLASS} truncate`}>
+                          {project.itemKey || `PRJ-${String(project.id).padStart(3, "0")}`}
+                        </span>
+                        <ProjectDescription
+                          text={project.temaQccp || project.namaGroupQccp || "No Title"}
+                        />
+                      </div>
+                    </td>
+
+                    {STEPS.map((step) => {
+                      const isTargetCol = step.num === targetStep;
+                      const isFirst = step.num === 1;
+                      const isLast = step.num === 8;
+                      return (
+                        <td
+                          key={step.num}
+                          className={`px-0.5 py-4 align-middle relative ${TABLE_BORDER_Y_CLASS} ${isTargetCol ? "border-x-2" : `${TABLE_BORDER_CLASS} bg-white group-hover:bg-slate-50/50`
+                            }`}
+                          style={
+                            isTargetCol
+                              ? {
+                                backgroundColor: TARGET_COL_BG,
+                                borderLeftColor: TARGET_COL_BORDER,
+                                borderRightColor: TARGET_COL_BORDER,
+                              }
+                              : undefined
+                          }
+                        >
+                          <div
+                            className={`h-3 w-full shadow-sm ${isFirst ? "rounded-l-lg" : ""} ${isLast ? "rounded-r-lg" : ""}`}
+                            style={{
+                              backgroundColor: getSegmentColor(step.num <= actualStep, status),
+                            }}
+                          />
+                        </td>
+                      );
+                    })}
+
+                    <td className={`px-3 py-4 ${TABLE_BORDER_CLASS} bg-white group-hover:bg-slate-50/50 min-w-0 align-middle`}>
+                      <div className="flex justify-center px-1">
+                        <StatusBadge status={status} targetStep={targetStep} />
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+
+            {!loading && !error && filteredTotal === 0 && (
+              <tr>
+                <td colSpan={11} className={`px-6 py-12 text-center text-slate-400 italic font-medium ${TABLE_BORDER_CLASS}`}>
+                  No Data Entry
                 </td>
               </tr>
             )}
@@ -476,8 +733,9 @@ export function QccProjectMonitoringSummary(props: {
         </table>
       </div>
 
-      {/* Pagination Controls */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 px-2">
+      <div aria-hidden className="h-10" />
+
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-2">
         <div className="flex items-center gap-2">
           <span className="text-xs font-semibold text-slate-500">Rows:</span>
           <select
@@ -492,11 +750,11 @@ export function QccProjectMonitoringSummary(props: {
             <option value="all">All</option>
           </select>
           <span className="text-xs font-medium text-slate-400">
-            {stats.total === 0 ? "No data" : `Showing ${showingStart}-${showingEnd} of ${stats.total}`}
+            {filteredTotal === 0 ? "No data" : `Showing ${showingStart}-${showingEnd} of ${filteredTotal}`}
           </span>
         </div>
 
-        {pageSize !== "all" && stats.total > 0 && (
+        {pageSize !== "all" && filteredTotal > 0 && (
           <div className="flex items-center gap-2">
             <Button
               size="sm"

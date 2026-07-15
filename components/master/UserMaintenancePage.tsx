@@ -220,10 +220,10 @@ export default function UserMaintenancePage() {
             <UserCog className="w-8 h-8" />
             User Maintenance
           </h1>
-          <p className="text-white/80">Kelola organisasi user (Division, Department, Section)</p>
+          <p className="text-white p-1">Kelola organisasi user (Division, Department, Section)</p>
         </div>
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           className="bg-white/20 text-white border-white/30 hover:bg-white/30"
           onClick={() => loadUsers()}
           disabled={loading}
@@ -328,9 +328,9 @@ export default function UserMaintenancePage() {
                       </TableCell>
                       <TableCell className="text-xs text-slate-600 truncate max-w-[150px]" title={user.superiorName}>{user.superiorName || "-"}</TableCell>
                       <TableCell className="text-center sticky right-0 bg-white shadow-[-4px_0_10px_rgba(0,0,0,0.05)] z-10">
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
+                        <Button
+                          size="sm"
+                          variant="outline"
                           className="font-bold"
                           onClick={() => handleEdit(user)}
                         >
@@ -347,11 +347,11 @@ export default function UserMaintenancePage() {
 
           {/* Pagination - Standard Approval/SS style */}
           <div className="flex justify-between items-center px-6 py-4 border-t bg-slate-50/30">
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               className="font-bold text-slate-600 border-slate-200 hover:bg-white transition-all"
-              onClick={() => setPage(p => Math.max(1, p - 1))} 
+              onClick={() => setPage(p => Math.max(1, p - 1))}
               disabled={page <= 1 || loading}
             >
               <ChevronLeft className="w-4 h-4 mr-1" />
@@ -405,8 +405,8 @@ export default function UserMaintenancePage() {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label className="font-bold text-slate-700">Division</Label>
-              <Select 
-                value={form.divisionId} 
+              <Select
+                value={form.divisionId}
                 onValueChange={(val) => setForm({ ...form, divisionId: val, departmentId: "", sectionId: "" })}
               >
                 <SelectTrigger className="h-10">
@@ -424,8 +424,8 @@ export default function UserMaintenancePage() {
 
             <div className="space-y-2">
               <Label className="font-bold text-slate-700">Department</Label>
-              <Select 
-                value={form.departmentId} 
+              <Select
+                value={form.departmentId}
                 disabled={!form.divisionId}
                 onValueChange={(val) => setForm({ ...form, departmentId: val, sectionId: "" })}
               >
@@ -444,8 +444,8 @@ export default function UserMaintenancePage() {
 
             <div className="space-y-2">
               <Label className="font-bold text-slate-700">Section</Label>
-              <Select 
-                value={form.sectionId} 
+              <Select
+                value={form.sectionId}
                 disabled={!form.departmentId}
                 onValueChange={(val) => setForm({ ...form, sectionId: val })}
               >

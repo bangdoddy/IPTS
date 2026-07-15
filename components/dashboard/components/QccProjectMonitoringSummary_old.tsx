@@ -169,7 +169,7 @@ export function QccProjectMonitoringSummary(props: {
       {/* Top Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Project */}
-        <Card className="shadow-md border border-slate-100 bg-white rounded-2xl overflow-hidden hover:shadow-lg transition-shadow duration-300 p-3">
+        <Card className="shadow-md border border-slate-100 bg-white rounded-2xl overflow-hidden hover:shadow-lg transition-shadow duration-300">
           <CardContent className="p-5 flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
               <Folder className="w-6 h-6" />
@@ -185,7 +185,7 @@ export function QccProjectMonitoringSummary(props: {
         </Card>
 
         {/* On Track */}
-        <Card className="shadow-md border border-slate-100 bg-white rounded-2xl overflow-hidden hover:shadow-lg transition-shadow duration-300 p-3">
+        <Card className="shadow-md border border-slate-100 bg-white rounded-2xl overflow-hidden hover:shadow-lg transition-shadow duration-300">
           <CardContent className="p-5 flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl bg-green-50 flex items-center justify-center text-green-600 shrink-0">
@@ -204,9 +204,9 @@ export function QccProjectMonitoringSummary(props: {
             </Badge>
           </CardContent>
         </Card>
- 
+
         {/* Late */}
-        <Card className="shadow-md border border-slate-100 bg-white rounded-2xl overflow-hidden hover:shadow-lg transition-shadow duration-300 p-3">
+        <Card className="shadow-md border border-slate-100 bg-white rounded-2xl overflow-hidden hover:shadow-lg transition-shadow duration-300">
           <CardContent className="p-5 flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center text-red-500 shrink-0">
@@ -225,9 +225,9 @@ export function QccProjectMonitoringSummary(props: {
             </Badge>
           </CardContent>
         </Card>
- 
+
         {/* Ahead */}
-        <Card className="shadow-md border border-slate-100 bg-white rounded-2xl overflow-hidden hover:shadow-lg transition-shadow duration-300 p-3">
+        <Card className="shadow-md border border-slate-100 bg-white rounded-2xl overflow-hidden hover:shadow-lg transition-shadow duration-300">
           <CardContent className="p-5 flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-500 shrink-0">
@@ -256,7 +256,7 @@ export function QccProjectMonitoringSummary(props: {
           </div>
           <div>
             <span className="text-[10px] font-black text-blue-900/50 uppercase tracking-widest block">Current Target Step</span>
-            <span className="text-2xl font-black text-blue-900">STEP {targetStep}</span>
+            <span className="text-2xl font-black text-blue-900">Posisi saat ini</span>
             <p className="text-xs text-slate-500 font-medium mt-1">
               Berdasarkan timeline plan, semua project seharusnya sudah mencapai minimal Step {targetStep} pada bulan ini.
             </p>
@@ -279,13 +279,11 @@ export function QccProjectMonitoringSummary(props: {
                 )}
                 <button
                   onClick={() => setTargetStep(stepNum)}
-                  className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm transition-all shadow-md ${isTarget
-                    ? "bg-blue-600 text-white ring-4 ring-blue-100 scale-110"
-                    : "bg-white text-slate-600 hover:bg-slate-50 border border-slate-200"
+                  className={`rounded-full flex items-center justify-center font-bold text-sm transition-all shadow-md ${isTarget
+                    ? "w-8 h-8 bg-blue-600 text-white ring-4 ring-blue-100 scale-110"
+                    : "w-5 h-5 bg-white text-slate-600 hover:bg-slate-50 border border-slate-200"
                     }`}
-                >
-                  {stepNum}
-                </button>
+                />
               </div>
             );
           })}
@@ -309,39 +307,34 @@ export function QccProjectMonitoringSummary(props: {
         <table className="w-full text-sm text-left border border-slate-200 border-collapse">
           <thead>
             {/* Header Row 1 */}
-            <tr className="bg-[#0f172a] text-white" style={{ backgroundColor: "#0f172a", color: "#ffffff" }}>
-              <th rowSpan={2} style={{ backgroundColor: "#0f172a", color: "#ffffff" }} className="px-6 py-4 font-bold text-center border border-slate-700 text-xs uppercase tracking-wider min-w-[150px] bg-[#0f172a] text-white">
+            <tr className="bg-[#1b305b] text-white" style={{ backgroundColor: "#1b305b", color: "#ffffff" }}>
+              <th rowSpan={2} style={{ backgroundColor: "#1b305b", color: "#ffffff" }} className="px-6 py-4 font-bold text-center border border-slate-700 text-xs uppercase tracking-wider min-w-[150px] bg-[#1b305b] text-white">
                 Department Head
               </th>
-              <th rowSpan={2} style={{ backgroundColor: "#0f172a", color: "#ffffff" }} className="px-6 py-4 font-bold text-center border-b border-slate-700 text-xs uppercase tracking-wider min-w-[150px] bg-[#0f172a] text-white">
+              <th rowSpan={2} style={{ backgroundColor: "#1b305b", color: "#ffffff" }} className="px-6 py-4 font-bold text-center border border-slate-700 text-xs uppercase tracking-wider min-w-[150px] bg-[#1b305b] text-white">
                 Project
               </th>
-              <th colSpan={8} style={{ backgroundColor: "#0f172a", color: "#ffffff" }} className="px-4 py-2 font-bold text-center border border-slate-700 text-xs uppercase tracking-wider bg-[#0f172a] text-white">
+              <th colSpan={8} style={{ backgroundColor: "#1b305b", color: "#ffffff" }} className="px-4 py-2 font-bold text-center border border-slate-700 text-xs uppercase tracking-wider bg-[#1b305b] text-white">
                 Progress (8 Step)
               </th>
-              <th rowSpan={2} style={{ backgroundColor: "#0f172a", color: "#ffffff" }} className="px-6 py-4 font-bold text-center border border-slate-700 text-xs uppercase tracking-wider min-w-[120px] bg-[#0f172a] text-white">
+              <th rowSpan={2} style={{ backgroundColor: "#1b305b", color: "#ffffff" }} className="px-6 py-4 font-bold text-center border border-slate-700 text-xs uppercase tracking-wider min-w-[120px] bg-[#1b305b] text-white">
                 Status
-              </th>
-              <th rowSpan={2} style={{ backgroundColor: "#0f172a", color: "#ffffff" }} className="px-4 py-4 font-bold text-center border border-slate-700 text-xs uppercase tracking-wider w-[60px] bg-[#0f172a] text-white">
-                Action
               </th>
             </tr>
             {/* Header Row 2 */}
-            <tr className="bg-[#0f172a] text-slate-300" style={{ backgroundColor: "#0f172a", color: "#cbd5e1" }}>
+            <tr className="bg-[#1b305b] text-slate-300" style={{ backgroundColor: "#1b305b", color: "#cbd5e1" }}>
               {STEPS.map((step) => {
-                const IconComponent = step.icon;
                 const isTarget = step.num === targetStep;
                 return (
                   <th
                     key={step.num}
-                    style={isTarget ? { backgroundColor: "rgba(30, 58, 138, 0.4)", color: "#93c5fd" } : { backgroundColor: "#0f172a", color: "#cbd5e1" }}
-                    className={`px-1 py-3 text-center border border-slate-700 text-[10px] font-bold ${
-                      isTarget 
-                        ? "bg-blue-900/40 text-blue-200 border-r-2 border-dashed border-blue-500/50" 
-                        : "bg-[#0f172a] text-slate-300"
-                    }`}
+                    style={isTarget ? { backgroundColor: "rgba(30, 58, 138, 0.4)", color: "#93c5fd", width: "50px" } : { backgroundColor: "#1b305b", color: "#cbd5e1", width: "50px" }}
+                    className={`px-1 py-2 text-center border border-slate-700 text-[10px] font-bold w-[50px] min-w-[50px] ${isTarget
+                      ? "bg-blue-900/40 text-blue-200 border-r-2 border-dotted border-blue-400"
+                      : "bg-[#1b305b] text-slate-300"
+                      }`}
                   >
-                    <div className="flex flex-col items-center gap-1.5 min-w-[65px] relative pt-3">
+                    <div className="flex flex-col items-center justify-center w-[50px] min-w-[50px] py-1 relative pt-4">
                       {isTarget && (
                         <>
                           <span className="text-[10px] text-orange-400 absolute top-0 font-bold animate-bounce z-20">
@@ -350,9 +343,7 @@ export function QccProjectMonitoringSummary(props: {
                           <div className="absolute top-4 left-1/2 -translate-x-1/2 w-0 border-l-2 border-dashed border-blue-400 h-[2000px] pointer-events-none z-10" />
                         </>
                       )}
-                      <span className="text-[11px] font-black">{step.num}</span>
-                      <IconComponent className="w-3.5 h-3.5" />
-                      <span className="text-[9px] font-medium leading-none opacity-85">{step.name}</span>
+                      <span className="text-sm font-black">{step.num}</span>
                     </div>
                   </th>
                 );
@@ -360,7 +351,7 @@ export function QccProjectMonitoringSummary(props: {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {paginatedList.map((item, index) => {
+             {paginatedList.map((item, index) => {
               const { project, actualStep, status } = item;
               const deptHeadName = project.fasilitator || project.leader || "Unnamed Head";
               const initials = getInitials(deptHeadName);
@@ -380,7 +371,7 @@ export function QccProjectMonitoringSummary(props: {
                       <div>
                         <div className="font-semibold text-slate-800 line-clamp-1">{deptHeadName}</div>
                         <div className="text-[10px] font-medium text-slate-400 mt-0.5">
-                          {project.department || "Dept Head"}
+                          {project.department}
                         </div>
                       </div>
                     </div>
@@ -413,20 +404,21 @@ export function QccProjectMonitoringSummary(props: {
 
                     const roundedClass =
                       step.num === 1
-                        ? "rounded-l-lg"
+                        ? "rounded-l-md"
                         : step.num === 8
-                          ? "rounded-r-lg"
-                          : "rounded-md";
+                          ? "rounded-r-md"
+                          : "rounded-none";
 
                     return (
                       <td
                         key={step.num}
-                        className={`px-1 py-4 align-middle border border-slate-200/80 ${isTargetCol ? "bg-blue-50/20 border-r-2 border-dashed border-blue-400" : ""
+                        style={{ width: "50px" }}
+                        className={`px-0 py-4 align-middle border border-slate-200/80 w-[50px] min-w-[50px] ${isTargetCol ? "bg-blue-50/20 border-r-2 border-dotted border-blue-400" : ""
                           }`}
                       >
                         <div
                           style={{ backgroundColor: segmentColor }}
-                          className={`h-3 w-full ${roundedClass} transition-all duration-300 shadow-sm`}
+                          className={`h-3 w-full ${roundedClass} transition-all duration-300`}
                         />
                       </td>
                     );
@@ -435,38 +427,35 @@ export function QccProjectMonitoringSummary(props: {
                   {/* Status Badge */}
                   <td className="px-6 py-4 text-center border border-slate-200/80">
                     {status === "late" && (
-                      <div className="inline-flex items-center gap-1.5 bg-red-50 text-red-700 border border-red-100 rounded-lg px-2.5 py-1 text-xs font-semibold">
-                        <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "#ef4444" }} />
+                      <div
+                        style={{ backgroundColor: "#fef2f2", color: "#b91c1c", borderColor: "#fee2e2" }}
+                        className="inline-flex items-center gap-1.5 border rounded-lg px-2.5 py-1 text-xs font-semibold"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: "#ef4444" }} />
                         <span>Late</span>
-                        <span className="text-[10px] text-red-500/70 font-medium">(Plan: Step {targetStep})</span>
+                        <span className="text-[10px] font-medium" style={{ color: "rgba(239, 68, 68, 0.7)" }}>(Plan: Step {targetStep})</span>
                       </div>
                     )}
                     {status === "on-track" && (
-                      <div className="inline-flex items-center gap-1.5 bg-green-50 text-green-700 border border-green-100 rounded-lg px-2.5 py-1 text-xs font-semibold">
-                        <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "#22c55e" }} />
+                      <div
+                        style={{ backgroundColor: "#f0fdf4", color: "#15803d", borderColor: "#dcfce7" }}
+                        className="inline-flex items-center gap-1.5 border rounded-lg px-2.5 py-1 text-xs font-semibold"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: "#22c55e" }} />
                         <span>On Track</span>
-                        <span className="text-[10px] text-green-500/70 font-medium">(Plan: Step {targetStep})</span>
+                        <span className="text-[10px] font-medium" style={{ color: "rgba(34, 197, 94, 0.7)" }}>(Plan: Step {targetStep})</span>
                       </div>
                     )}
                     {status === "ahead" && (
-                      <div className="inline-flex items-center gap-1.5 bg-orange-50 text-orange-700 border border-orange-100 rounded-lg px-2.5 py-1 text-xs font-semibold">
-                        <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "#f97316" }} />
+                      <div
+                        style={{ backgroundColor: "#fef9c3", color: "#a16207", borderColor: "#fef08a" }}
+                        className="inline-flex items-center gap-1.5 border rounded-lg px-2.5 py-1 text-xs font-semibold"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: "#eab308" }} />
                         <span>Ahead</span>
-                        <span className="text-[10px] text-orange-500/70 font-medium">(Plan: Step {targetStep})</span>
+                        <span className="text-[10px] font-medium" style={{ color: "rgba(202, 138, 4, 0.7)" }}>(Plan: Step {targetStep})</span>
                       </div>
                     )}
-                  </td>
-
-                  {/* Action Eye Button */}
-                  <td className="px-4 py-4 text-center border border-slate-200/80">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 hover:text-blue-600 hover:bg-blue-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                      onClick={() => props.showDetailModal(project)}
-                    >
-                      <Eye className="w-4 h-4" />
-                    </Button>
                   </td>
                 </tr>
               );
@@ -474,7 +463,7 @@ export function QccProjectMonitoringSummary(props: {
 
             {stats.total === 0 && (
               <tr>
-                <td colSpan={12} className="px-6 py-12 text-center text-slate-400 italic font-medium border border-slate-200/80">
+                <td colSpan={11} className="px-6 py-12 text-center text-slate-400 italic font-medium border border-slate-200/80">
                   No {typeFilter} projects found
                 </td>
               </tr>

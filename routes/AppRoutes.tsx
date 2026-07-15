@@ -1,5 +1,6 @@
 import ProjectStatusQcc from "../components/projectstatusqcc/index";
 import TrackingQcc from "../components/tracking/trackingqcc";
+import TrackingQcp from "../components/tracking/trackingqcp";
 
 // src/routes/AppRoutes.tsx
 import React, { useCallback } from "react";
@@ -209,6 +210,10 @@ export default function AppRoutes({ projects, setProjects }: AppRoutesProps) {
         <Route
           path={PATHS.app.trackingqcc}
           element={<TrackingQcc />}
+        />
+        <Route
+          path={PATHS.app.trackingqcp}
+          element={<TrackingQcp />}
         />
         <Route
           path={PATHS.app.projectstatussdraft}

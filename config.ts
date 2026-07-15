@@ -72,6 +72,7 @@ export const API_PATH = {
   QCC_STEP_REJECT: "/api/QccProject/step/reject",
   QCC_CHART: "/api/QccProject/chart",
   QCC_DASHBOARD: "/api/QccProject/dashboard",
+  QCC_RETRIEVE: "/api/QccProject/retrieve",
 
   // ===== QCP =====
   QCP_CREATE: "/api/QcpProject/create",
@@ -82,7 +83,9 @@ export const API_PATH = {
   QCP_STEP_APPROVE: "/api/QcpProject/step/approve",
   QCP_STEP_REJECT: "/api/QcpProject/step/reject",
   QCP_DASHBOARD: "/api/QcpProject/dashboard",
+  QCP_RETRIEVE: "/api/QcpProject/retrieve",
   USER_MAINTENANCE: "/api/UserMaintenance",
+  BLOB_UPLOAD: "/api/BlobStorage/upload",
 } as const;
 
 // 2) API versi STRING URL (paling aman dipakai)
@@ -125,6 +128,7 @@ export const API = {
   SUGGESTION_CLASSIFICATION: u(API_PATH.SUGGESTION_CLASSIFICATION),
   QCC_CHART: u(API_PATH.QCC_CHART),
   QCC_DASHBOARD: u(API_PATH.QCC_DASHBOARD),
+  QCC_RETRIEVE: u(API_PATH.QCC_RETRIEVE),
 
 
   // QCP
@@ -136,8 +140,10 @@ export const API = {
   QCP_STEP_APPROVE: u(API_PATH.QCP_STEP_APPROVE),
   QCP_STEP_REJECT: u(API_PATH.QCP_STEP_REJECT),
   QCP_DASHBOARD: u(API_PATH.QCP_DASHBOARD),
+  QCP_RETRIEVE: u(API_PATH.QCP_RETRIEVE),
   USER_MAINTENANCE: u(API_PATH.USER_MAINTENANCE),
   KLASIFIKASI_LIST: u(API_PATH.KLASIFIKASI_LIST),
+  BLOB_UPLOAD: u(API_PATH.BLOB_UPLOAD),
 } as const;
 
 // 3) Optional: API versi FUNCTION (kalau kamu masih mau gaya lama)
@@ -160,4 +166,5 @@ export const API_FN = {
   AuthenticationOTP: () => API.AuthenticationOTP,
   REJECT_EXECUTE: () => API.REJECT_EXECUTE,
   KLASIFIKASI_LIST: () => API.KLASIFIKASI_LIST,
+  BLOB_UPLOAD: () => API.BLOB_UPLOAD,
 } as const;

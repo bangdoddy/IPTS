@@ -6,6 +6,22 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Badge } from "../ui/badge";
 import { API, CONFIG } from "../../config";
 import { getCookieJson } from "../../libs/cookie";
+import {
+  Search,
+  CalendarIcon,
+  Eye,
+  Building2,
+  RotateCcw,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  FileText,
+  Download,
+  Upload,
+  List,
+  User,
+  Rows,
+} from "lucide-react";
 
 type ApprovalQccRow = {
   id?: number;
@@ -118,6 +134,91 @@ export function ApprovalQcc() {
       !!String(detail.itemKey || "").trim()
     );
   }, [detail]);
+
+  const [detailData, setDetailData] = useState<any | null>(null);
+  const [detailDataLoading, setDetailDataLoading] = useState(false);
+
+  const templateB64 = String(detailData?.documentTemplateBase64 ?? "").trim();
+  const hasTemplatePdf = !!templateB64;
+  const templateMime = hasTemplatePdf ? guessMimeFromBase64(templateB64) : "";
+  const ssB64 = hasTemplatePdf ? templateB64 : "";
+  const templateExt = templateMime.includes("pdf") ? ".pdf" : templateMime.includes("word") ? ".docx" : ".pdf";
+  const canViewForm = detailData?.status.toLowerCase() !== "submitted";
+
+  function openBase64InSmallWindow(base64Raw: string) {
+    const mime = guessMimeFromBase64(base64Raw);
+    const blob = base64ToBlob(base64Raw, mime);
+    const url = URL.createObjectURL(blob);
+
+    const width = 800;
+    const height = 600;
+    const left = window.screen.width / 2 - width / 2;
+    const top = window.screen.height / 2 - height / 2;
+
+    window.open(
+      url,
+      "_blank",
+      `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,status=no,toolbar=no,menubar=no,location=no`
+    );
+    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  }
+
+  function stripDataUrlPrefix(b64: string) {
+    const s = String(b64 ?? "").trim();
+    const idx = s.indexOf("base64,");
+    return idx >= 0 ? s.slice(idx + "base64,".length).trim() : s;
+  }
+
+  function guessMimeFromBase64(b64Raw: string) {
+    const b64 = stripDataUrlPrefix(b64Raw);
+    if (b64.startsWith("JVBERi0x")) return "application/pdf";
+    return "application/octet-stream";
+  }
+
+  function base64ToBlob(base64Raw: string, mime = "application/octet-stream") {
+    const base64 = stripDataUrlPrefix(base64Raw);
+
+    const sliceSize = 1024;
+    const byteChars = atob(base64);
+    const byteArrays: Uint8Array[] = [];
+
+    for (let offset = 0; offset < byteChars.length; offset += sliceSize) {
+      const slice = byteChars.slice(offset, offset + sliceSize);
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) byteNumbers[i] = slice.charCodeAt(i);
+      byteArrays.push(new Uint8Array(byteNumbers));
+    }
+
+    return new Blob(byteArrays, { type: mime });
+  }
+
+  function downloadBase64File(base64Raw: string, filename: string) {
+    const mime = guessMimeFromBase64(base64Raw);
+    const blob = base64ToBlob(base64Raw, mime);
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename || "document";
+    a.rel = "noopener";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  }
+
+  const handleViewSsPdf = useCallback(() => {
+    if (!hasTemplatePdf) return;
+    openBase64InSmallWindow(ssB64);
+  }, [hasTemplatePdf, ssB64]);
+
+  const handleDownloadSsPdf = useCallback(() => {
+    if (!hasTemplatePdf) return;
+    const baseName = String(detailData?.itemKey ?? detail?.itemKey ?? "QCC").replace(/\//g, "_");
+    downloadBase64File(ssB64, `Form-QCC-${baseName}${templateExt || ".pdf"}`);
+  }, [detailData, detail, hasTemplatePdf, ssB64, templateExt]);
+
 
   const handleApprove = useCallback(async () => {
     if (!detail) return;
@@ -266,6 +367,7 @@ export function ApprovalQcc() {
                             setRejectReason("");
                             setRejectOpen(false);
                             setDetail(r);
+                            setDetailData(r);
                           }}
                         >
                           Detail
@@ -300,6 +402,50 @@ export function ApprovalQcc() {
                 ✕
               </Button>
             </div>
+            <div className="mt-1 flex flex-wrap p-2 gap-2 justify-end">
+              <Button
+                className="shrink-0"
+                variant="outline"
+                size="sm"
+                onClick={handleViewSsPdf}
+                disabled={detailDataLoading || !canViewForm}
+                title={detailDataLoading ? "Loading template..." : (!hasTemplatePdf || !canViewForm ? "documentTemplateBase64 belum tersedia." : undefined)}
+              >
+                {detailDataLoading ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <FileText className="w-4 h-4 mr-2" />
+                )}
+                View QCC Form (PDF)
+              </Button>
+
+              <Button
+                className="shrink-0"
+                variant="default"
+                size="sm"
+                onClick={handleDownloadSsPdf}
+                disabled={detailDataLoading || !canViewForm}
+                title={detailDataLoading ? "Loading template..." : (!hasTemplatePdf ? "documentTemplateBase64 belum tersedia." : undefined)}
+              >
+                {detailDataLoading ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Download className="w-4 h-4 mr-2" />
+                )}
+                Download QCC
+              </Button>
+
+              {/* {String(selectedProject?.status).toLowerCase() === 'reject by leader'.toLowerCase() && (
+                                                    <Button
+                                                      variant="outline"
+                                                      size="sm"
+                                                      className="ml-2"
+                                                      onClick={() => handleOpenEdit(selectedProject)}
+                                                    >
+                                                      Revise Data
+                                                    </Button>
+                                                  )} */}
+            </div>
             <div className="p-6 space-y-4">
               {actionError && <div className="text-sm text-red-600">{actionError}</div>}
 
@@ -326,7 +472,7 @@ export function ApprovalQcc() {
                 </div>
               </div>
 
-              {Number(detail.step) === 4 && normalizeStatus(detail.stepStatus) === "submitted" && (
+              {normalizeStatus(detail.stepStatus) === "submitted" && (
                 <div className="border border-orange-200 rounded-lg p-4 bg-orange-50/50 space-y-4">
                   <div className="space-y-1">
                     <label className="text-md font-semibold text-orange-800">

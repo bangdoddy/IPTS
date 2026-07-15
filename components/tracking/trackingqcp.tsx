@@ -1,0 +1,679 @@
+import React, { useCallback, useEffect, useState } from "react";
+import { format, parseISO } from "date-fns";
+import { Card, CardContent } from "../ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { CONFIG, API } from "../../config";
+import { PdfPopupViewer } from "../ui/PdfPopupViewer";
+import { getCookieJson } from "../../libs/cookie";
+import {
+    Search,
+    CalendarIcon,
+    Eye,
+    Building2,
+    RotateCcw,
+    ChevronLeft,
+    ChevronRight,
+    Loader2,
+    FileText,
+    Download,
+    Upload,
+    List,
+    User,
+    Rows,
+} from "lucide-react";
+import {
+    USE_DUMMY_PROJECT_STATUS,
+    simulateDummyDelay,
+    fetchDummyQcpList,
+    fetchDummyQcpStepHistory,
+} from "../../libs/projectStatusDummy";
+import {
+    TruncatedReadMoreCell,
+    StepFilterBar,
+    useStepFilter,
+    HistoricalProjectPageShell,
+    HistoricalProjectTable,
+    HistoricalProjectTableHeader,
+    historicalTableCell,
+} from "../projectstatus/shared";
+
+function useLoginNrp() {
+    return React.useMemo(() => {
+        try {
+            const c = getCookieJson<any>("inovasis_auth");
+            return c?.nrp ?? c?.NRP ?? c?.username ?? null;
+        } catch {
+            return null;
+        }
+    }, []);
+}
+
+// Tipe data QCP Project
+interface QcpProject {
+    id?: number;
+    itemKey?: string;
+    namaGroupQccp?: string;
+    temaQccp?: string;
+    department?: string;
+    section?: string;
+    createdAt?: string;
+    createdBy?: string;
+    leaderNrp?: string;
+    leader?: string;
+    status?: string;
+    step?: string;
+    stepStatus?: string;
+    cost?: string | number;
+    costType?: string;
+}
+
+
+interface QcpStep {
+    step: string;
+    status: string;
+    tanggal: string;
+    file?: string;
+    reason?: string;
+}
+
+function formatDate(dateStr?: string) {
+    if (!dateStr) return "-";
+    try {
+        const d = dateStr.includes("T") ? parseISO(dateStr) : parseISO(`${dateStr}T00:00:00`);
+        return format(d, "dd-MM-yyyy");
+    } catch {
+        const d = new Date(dateStr);
+        if (!Number.isNaN(d.getTime())) return format(d, "dd-MM-yyyy");
+        return String(dateStr);
+    }
+}
+
+function formatThousandSeparator(val: string) {
+    const clean = val.replace(/\D/g, "");
+    if (!clean) return "";
+    return clean.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+function formatDisplayCost(val: any) {
+    if (val === undefined || val === null || val === "") return "-";
+    const num = Math.round(Number(String(val).replace(/,/g, ".")));
+    if (isNaN(num)) return "-";
+    return String(num).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+export default function ProjectStatusQcp() {
+    const loginNrp = useLoginNrp();
+    const [refreshKey] = useState(0);
+    const [rows, setRows] = useState<QcpProject[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [detail, setDetail] = useState<QcpProject | null>(null);
+
+    const [stepHistory, setStepHistory] = useState<QcpStep[]>([]);
+    const [stepLoading, setStepLoading] = useState(false);
+    const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+    const [pdfOpen, setPdfOpen] = useState(false);
+    const [selectedUploadFile, setSelectedUploadFile] = useState<File | null>(null);
+    const [actionLoading, setActionLoading] = useState(false);
+    const [actionError, setActionError] = useState("");
+    const [costInput, setCostInput] = useState("");
+    const [costTypeCost, setCostTypeCost] = useState(false);
+    const [costTypeRevenue, setCostTypeRevenue] = useState(false);
+
+    const { stepFilter, setStepFilter, stepOptions, filteredRows } = useStepFilter(rows.filter(item => item.status !== "finished"));
+
+    // Fetch QCP list
+    const fetchList = useCallback(async () => {
+        setLoading(true);
+        setError("");
+        try {
+            if (USE_DUMMY_PROJECT_STATUS) {
+                await simulateDummyDelay();
+                setRows(fetchDummyQcpList() as QcpProject[]);
+                return;
+            }
+
+            const createdBy = loginNrp || "";
+            const resp = await fetch(API.QCP_LIST, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ CreatedBy: createdBy, RefreshKey: refreshKey, Status: '' }),
+            });
+            const json = await resp.json();
+            setRows(Array.isArray(json?.data) ? json.data : []);
+        } catch (e: any) {
+            setError(e?.message || "Gagal load QCP");
+            setRows([]);
+        } finally {
+            setLoading(false);
+        }
+    }, [loginNrp, refreshKey]);
+
+    useEffect(() => {
+        fetchList();
+    }, [fetchList]);
+
+
+    // Fetch QCP step history (POST to /api/QcpProject/step/history)
+    const fetchStepHistory = useCallback(async (itemKey: string) => {
+        setStepLoading(true);
+        try {
+            if (USE_DUMMY_PROJECT_STATUS) {
+                await simulateDummyDelay();
+                setStepHistory(fetchDummyQcpStepHistory(itemKey));
+                return;
+            }
+
+            const resp = await fetch(`${CONFIG.apiBaseUrl}/api/QcpProject/step/history`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(itemKey),
+            });
+            const json = await resp.json();
+            // Map backend fields to FE QcpStep
+            const data = Array.isArray(json?.data)
+                ? json.data.map((s: any) => ({
+                    step: s.step ?? s.Step ?? "",
+                    status: s.status ?? s.Status ?? "",
+                    tanggal: s.createdAt ?? s.CreatedAt ?? "",
+                    file: s.fileDoc ?? s.FileDoc ? `${CONFIG.apiBaseUrl}/qcp/steps/${s.fileDoc ?? s.FileDoc}` : undefined,
+                }))
+                : [];
+            setStepHistory(data);
+        } catch {
+            setStepHistory([]);
+        } finally {
+            setStepLoading(false);
+        }
+    }, []);
+
+    const hasStepFile = stepHistory.some(s => !!s.file);
+
+    const handleDownloadSsPdf = useCallback(() => {
+        const lastStepWithFile = [...stepHistory].reverse().find(s => !!s.file);
+        if (lastStepWithFile?.file) {
+            const a = document.createElement("a");
+            a.href = lastStepWithFile.file;
+            a.download = "";
+            a.target = "_blank";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        }
+    }, [stepHistory]);
+
+    const [detailData, setDetailData] = useState<any | null>(null);
+    const [detailDataLoading, setDetailDataLoading] = useState(false);
+
+    const templateB64 = String(detailData?.documentTemplateBase64 ?? "").trim();
+    const hasTemplatePdf = !!templateB64;
+    const templateMime = hasTemplatePdf ? guessMimeFromBase64(templateB64) : "";
+    const ssB64 = hasTemplatePdf ? templateB64 : "";
+    const templateExt = templateMime.includes("pdf") ? ".pdf" : templateMime.includes("word") ? ".docx" : ".pdf";
+    const canViewForm = stepHistory.filter(s => s.status.toLowerCase() == "judul approved").length > 0;
+
+    function openBase64InSmallWindow(base64Raw: string) {
+        const mime = guessMimeFromBase64(base64Raw);
+        const blob = base64ToBlob(base64Raw, mime);
+        const url = URL.createObjectURL(blob);
+
+        const width = 800;
+        const height = 600;
+        const left = window.screen.width / 2 - width / 2;
+        const top = window.screen.height / 2 - height / 2;
+
+        window.open(
+            url,
+            "_blank",
+            `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,status=no,toolbar=no,menubar=no,location=no`
+        );
+        window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    }
+
+    function stripDataUrlPrefix(b64: string) {
+        const s = String(b64 ?? "").trim();
+        const idx = s.indexOf("base64,");
+        return idx >= 0 ? s.slice(idx + "base64,".length).trim() : s;
+    }
+
+    function guessMimeFromBase64(b64Raw: string) {
+        const b64 = stripDataUrlPrefix(b64Raw);
+        if (b64.startsWith("JVBERi0x")) return "application/pdf";
+        return "application/octet-stream";
+    }
+
+    function base64ToBlob(base64Raw: string, mime = "application/octet-stream") {
+        const base64 = stripDataUrlPrefix(base64Raw);
+
+        const sliceSize = 1024;
+        const byteChars = atob(base64);
+        const byteArrays: Uint8Array[] = [];
+
+        for (let offset = 0; offset < byteChars.length; offset += sliceSize) {
+            const slice = byteChars.slice(offset, offset + sliceSize);
+            const byteNumbers = new Array(slice.length);
+            for (let i = 0; i < slice.length; i++) byteNumbers[i] = slice.charCodeAt(i);
+            byteArrays.push(new Uint8Array(byteNumbers));
+        }
+
+        return new Blob(byteArrays, { type: mime });
+    }
+
+    const handleViewSsPdf = useCallback(() => {
+        if (!hasTemplatePdf) return;
+        openBase64InSmallWindow(ssB64);
+    }, [hasTemplatePdf, ssB64]);
+
+    const handleUploadStepFile = useCallback(async () => {
+        if (!detail || !selectedUploadFile) return;
+        setActionError("");
+        setActionLoading(true);
+        try {
+            const isJudulApproved = detail.stepStatus?.toLowerCase() === "judul approved";
+            const isRejected = detail.stepStatus?.toLowerCase() === "rejected";
+            const targetStep = isJudulApproved ? 1 : (isRejected ? Number(detail.step ?? 1) : Number(detail.step ?? 0) + 1);
+
+            if (targetStep === 4 && !costInput.trim()) {
+                setActionError("Nilai Cost wajib diisi");
+                setActionLoading(false);
+                return;
+            }
+
+            if (targetStep === 4 && !costTypeCost && !costTypeRevenue) {
+                setActionError("Tipe Cost wajib dipilih (Cost atau Revenue)");
+                setActionLoading(false);
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("ItemKey", detail.itemKey || "");
+            formData.append("Step", String(targetStep));
+            formData.append("Desc", detail.temaQccp || "");
+            formData.append("FileDoc", selectedUploadFile);
+            formData.append("CreatedBy", loginNrp || "");
+            if (targetStep === 4) {
+                const rawCost = costInput.replace(/\./g, "");
+                formData.append("Cost", rawCost);
+
+                const selectedTypes: string[] = [];
+                if (costTypeCost) selectedTypes.push("Cost");
+                if (costTypeRevenue) selectedTypes.push("Revenue");
+                formData.append("CostType", selectedTypes.join(", "));
+            }
+
+            const resp = await fetch(API.QCP_STEP_CREATE, {
+                method: "POST",
+                body: formData,
+            });
+            const json = await resp.json().catch(() => ({}));
+            const code = Number(json?.responseCode ?? resp.status);
+            if (code !== 200) throw new Error(json?.message ?? "Gagal upload file");
+
+            setSelectedUploadFile(null);
+            setCostInput("");
+            setCostTypeCost(false);
+            setCostTypeRevenue(false);
+            // Clear file inputs on page
+            const fileInputs = document.querySelectorAll('input[type="file"]') as NodeListOf<HTMLInputElement>;
+            fileInputs.forEach(input => { input.value = ''; });
+
+            setDetail(null);
+            await fetchList();
+        } catch (e: any) {
+            setActionError(e?.message || "Gagal upload file");
+        } finally {
+            setActionLoading(false);
+        }
+    }, [detail, selectedUploadFile, costInput, costTypeCost, costTypeRevenue, loginNrp, fetchList]);
+
+    // Handle open detail
+    const handleOpenDetail = async (row: QcpProject) => {
+        setDetail(row);
+        setDetailData(null);
+        if (row.itemKey) {
+            fetchStepHistory(row.itemKey);
+            setDetailDataLoading(true);
+            try {
+                const resp = await fetch(API.QCP_RETRIEVE, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ ItemKey: row.itemKey }),
+                });
+                const json = await resp.json();
+                if (json?.responseCode === 200 && json?.data) {
+                    setDetailData(json.data);
+                    console.log(json.data);
+                }
+            } catch (err) {
+                console.error("Gagal load detail QCP", err);
+            } finally {
+                setDetailDataLoading(false);
+            }
+        }
+    };
+
+    return (
+        <>
+            <HistoricalProjectPageShell
+                title="Tracking Project QCP"
+                subtitle="On Going Quality Control Project"
+            >
+                {error && <div className="text-sm text-red-600 mb-3">{error}</div>}
+                <StepFilterBar value={stepFilter} onChange={setStepFilter} steps={stepOptions} />
+                <HistoricalProjectTable>
+                    <HistoricalProjectTableHeader />
+                    <TableBody>
+                        {loading ? (
+                            <TableRow>
+                                <TableCell colSpan={7} className="text-center text-muted-foreground py-10">
+                                    Loading...
+                                </TableCell>
+                            </TableRow>
+                        ) : filteredRows.length ? (
+                            filteredRows.map((r, idx) => (
+                                <TableRow key={String(r.id ?? r.itemKey ?? idx)}>
+                                    <TableCell className={historicalTableCell.no}>{idx + 1}</TableCell>
+                                    <TableCell className={historicalTableCell.itemKey}>{r.itemKey}</TableCell>
+                                    <TableCell className={historicalTableCell.judul}>
+                                        <TruncatedReadMoreCell text={r.temaQccp ?? "-"} />
+                                    </TableCell>
+                                    <TableCell className={historicalTableCell.leader}>
+                                        {r.leader ?? "-"} ({r.leaderNrp ?? "-"})
+                                    </TableCell>
+                                    <TableCell className={historicalTableCell.status}><Badge variant="outline">{r.status ?? "-"}</Badge></TableCell>
+                                    <TableCell className={historicalTableCell.step}>{r.step ?? "-"}</TableCell>
+                                    <TableCell className={historicalTableCell.aksi}>
+                                        <Button size="sm" variant="outline" onClick={() => handleOpenDetail(r)}>
+                                            Detail
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={7} className="text-center text-muted-foreground py-10">
+                                    No data
+                                </TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </HistoricalProjectTable>
+            </HistoricalProjectPageShell>
+
+            {/* Detail QCP */}
+            {detail && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                    <div className="bg-white rounded-lg shadow-lg p-0 max-w-3xl w-full max-h-[90vh] overflow-y-auto overscroll-contain">
+                        <div className="flex items-center justify-between px-6 pt-6 pb-2 border-b">
+                            <h2 className="text-lg font-bold flex items-center gap-2">
+                                <Badge variant="outline" style={{ backgroundColor: "#EE642E15", color: "#EE642E", borderColor: "#EE642E" }}>
+                                    QCP
+                                </Badge>
+                                <span>{detail.temaQccp ?? detail.itemKey ?? "-"}</span>
+                            </h2>
+                            <Button onClick={() => setDetail(null)} variant="ghost">✕</Button>
+                        </div>
+                        <div className="mt-1 flex flex-wrap p-2 gap-2 justify-end">
+                            <Button
+                                className="shrink-0"
+                                variant="outline"
+                                size="sm"
+                                onClick={handleViewSsPdf}
+                                disabled={detailDataLoading || !canViewForm}
+                                title={detailDataLoading ? "Loading template..." : (!hasTemplatePdf || !canViewForm ? "documentTemplateBase64 belum tersedia." : undefined)}
+                            >
+                                {detailDataLoading ? (
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                ) : (
+                                    <FileText className="w-4 h-4 mr-2" />
+                                )}
+                                View QCP Form (PDF)
+                            </Button>
+
+                            <Button
+                                className="shrink-0"
+                                variant="default"
+                                size="sm"
+                                onClick={handleDownloadSsPdf}
+                                disabled={stepLoading || !hasStepFile}
+                                title={stepLoading ? "Loading step history..." : (!hasStepFile ? "Belum ada dokumen step yang di-upload." : undefined)}
+                            >
+                                {stepLoading ? (
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                ) : (
+                                    <Download className="w-4 h-4 mr-2" />
+                                )}
+                                Download Final QCP
+                            </Button>
+
+                            {/* {String(selectedProject?.status).toLowerCase() === 'reject by leader'.toLowerCase() && (
+                                                               <Button
+                                                                 variant="outline"
+                                                                 size="sm"
+                                                                 className="ml-2"
+                                                                 onClick={() => handleOpenEdit(selectedProject)}
+                                                               >
+                                                                 Revise Data
+                                                               </Button>
+                                                             )} */}
+                        </div>
+                        <div className="p-6 space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <div className="text-xs text-muted-foreground">ItemKey</div>
+                                    <div className="font-semibold">{detail.itemKey ?? "-"}</div>
+                                </div>
+                                <div>
+                                    <div className="text-xs text-muted-foreground">Leader</div>
+                                    <div className="font-semibold">{detail.leader ?? "-"} ({detail.leaderNrp ?? "-"})</div>
+                                </div>
+                                <div>
+                                    <div className="text-xs text-muted-foreground">Status</div>
+                                    <div>{detail.status ?? "-"}</div>
+                                </div>
+                                <div>
+                                    <div className="text-xs text-muted-foreground">Dokumen</div>
+                                    {detail.SupportingDocument ? (
+                                        <div className="flex gap-2 items-center">
+                                            <button
+                                                type="button"
+                                                className="px-2 py-1 rounded bg-orange-600 text-white hover:bg-orange-700 transition text-xs"
+                                                onClick={() => setPdfUrl(`${CONFIG.apiBaseUrl}/qcp/${detail.SupportingDocument}`)}
+                                            >
+                                                Lihat PDF
+                                            </button>
+                                            <a
+                                                href={`${CONFIG.apiBaseUrl}/qcp/${detail.SupportingDocument}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-blue-600 underline cursor-pointer text-xs"
+                                            >
+                                                Download
+                                            </a>
+                                        </div>
+                                    ) : (
+                                        <span>-</span>
+                                    )}
+                                </div>
+                                <div>
+                                    <div className="text-xs text-muted-foreground">Langkah Terakhir</div>
+                                    <div>{detail.step ?? "-"}</div>
+                                </div>
+                                <div>
+                                    <div className="text-xs text-muted-foreground">Cost ( in USD )</div>
+                                    <div>
+                                        {(() => {
+                                            const val = detailData?.cost ?? detailData?.Cost ?? detail?.cost ?? detail?.Cost;
+                                            return val ? formatDisplayCost(val) : "-";
+                                        })()}
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="text-xs text-muted-foreground">Cost Type</div>
+                                    <div>{detailData?.costType ?? detailData?.CostType ?? detail?.costType ?? detail?.CostType ?? "-"}</div>
+                                </div>
+                            </div>
+
+                            {/* Table Step History */}
+                            <div className="border rounded-lg p-4 bg-gray-50 mt-4">
+                                <div className="font-semibold mb-2">Riwayat Step QCP</div>
+                                {stepLoading ? (
+                                    <div>Loading...</div>
+                                ) : (
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>Step</TableHead>
+                                                <TableHead>Status</TableHead>
+                                                <TableHead>Tanggal</TableHead>
+                                                <TableHead>Reject Reason</TableHead>
+                                                <TableHead>File</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {stepHistory.length ? stepHistory.map((s, i) => (
+                                                <TableRow key={i}>
+                                                    <TableCell>{s.step}</TableCell>
+                                                    <TableCell>{s.status}</TableCell>
+                                                    <TableCell>{formatDate(s.tanggal)}</TableCell>
+                                                    <TableCell>{s.reason || "-"}</TableCell>
+                                                    <TableCell>
+                                                        {s.file ? (
+                                                            <div className="flex gap-2">
+                                                                <button
+                                                                    type="button"
+                                                                    className="px-2 py-1 rounded bg-orange-600 text-white hover:bg-orange-700 transition text-xs"
+                                                                    onClick={() => { setPdfUrl(s.file!); setPdfOpen(true); }}
+                                                                >
+                                                                    Lihat PDF
+                                                                </button>
+                                                                <a
+                                                                    href={s.file}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="text-blue-600 underline cursor-pointer text-xs"
+                                                                >
+                                                                    Download
+                                                                </a>
+                                                            </div>
+                                                        ) : "-"}
+                                                    </TableCell>
+                                                </TableRow>
+                                            )) : (
+                                                <TableRow>
+                                                    <TableCell colSpan={4} className="text-center text-muted-foreground py-4">No step history</TableCell>
+                                                </TableRow>
+                                            )}
+                                        </TableBody>
+                                    </Table>
+                                )}
+                            </div>
+
+                            {(() => {
+                                const isJudulApproved = detail.stepStatus?.toLowerCase() === "judul approved";
+                                const targetStep = isJudulApproved ? 1 : Number(detail.step ?? 0) + 1;
+                                const showUpload = (isJudulApproved || detail.stepStatus?.toLowerCase() === "approved") && targetStep <= 8;
+
+                                if (!showUpload) return null;
+
+                                return (
+                                    <div className="border border-orange-200 rounded-lg p-4 bg-orange-50/50 space-y-3 mt-4">
+                                        {targetStep === 4 && (
+                                            <div className="space-y-3">
+                                                <div className="space-y-1">
+                                                    <label htmlFor="cost-input" className="text-md font-semibold text-orange-800">
+                                                        Cost ( in USD ) <span className="text-red-500">*</span>
+                                                    </label>
+                                                    <div className="p-2">
+                                                        <input
+                                                            id="cost-input"
+                                                            type="text"
+                                                            placeholder="Masukkan Nilai Cost"
+                                                            value={costInput}
+                                                            onChange={(e) => setCostInput(formatThousandSeparator(e.target.value))}
+                                                            className="block w-full text-sm rounded-md border border-orange-200 bg-white px-3 py-2 focus:outline-none focus:ring-1 focus:ring-orange-500 shadow-sm"
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <div className="space-y-3">
+                                                    <div className="text-md font-semibold text-orange-800">
+                                                        Cost Type <span className="text-red-500">*</span>
+                                                    </div>
+                                                    <div className="flex flex-row gap-6 items-center p-2">
+                                                        <div className="flex items-center gap-2">
+                                                            <input
+                                                                type="checkbox"
+                                                                id="cost-type-cost"
+                                                                checked={costTypeCost}
+                                                                onChange={(e) => setCostTypeCost(e.target.checked)}
+                                                                className="w-4 h-4 rounded text-orange-600 border-orange-300 focus:ring-orange-500 cursor-pointer accent-orange-600"
+                                                            />
+                                                            <label htmlFor="cost-type-cost" className="text-sm font-medium text-slate-700 cursor-pointer select-none">
+                                                                Cost
+                                                            </label>
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            <input
+                                                                type="checkbox"
+                                                                id="cost-type-revenue"
+                                                                checked={costTypeRevenue}
+                                                                onChange={(e) => setCostTypeRevenue(e.target.checked)}
+                                                                className="w-4 h-4 rounded text-orange-600 border-orange-300 focus:ring-orange-500 cursor-pointer accent-orange-600"
+                                                            />
+                                                            <label htmlFor="cost-type-revenue" className="text-sm font-medium text-slate-700 cursor-pointer select-none">
+                                                                Revenue
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                        {actionError && <div className="text-xs text-red-600">{actionError}
+                                        </div>
+                                        }
+                                        <div className="font-semibold text-orange-800">Upload Dokumen Step {targetStep}</div>
+                                        <div className="flex flex-col sm:flex-row gap-2 items-center">
+                                            <input
+                                                type="file"
+                                                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg"
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0] || null;
+                                                    setSelectedUploadFile(file);
+                                                }}
+                                                className="block w-full text-sm text-slate-500
+                                        file:mr-4 file:py-2 file:px-4
+                                        file:rounded-full file:border-0
+                                        file:text-sm file:font-semibold
+                                        file:bg-orange-50 file:text-orange-700
+                                        hover:file:bg-orange-100"
+                                            />
+                                            <Button
+                                                onClick={handleUploadStepFile}
+                                                disabled={!selectedUploadFile || actionLoading}
+                                                style={{ backgroundColor: "#EE642E", color: "#fff" }}
+                                            >
+                                                {actionLoading ? "Uploading..." : "Upload File"}
+                                            </Button>
+                                        </div>
+                                        {actionError && <div className="text-xs text-red-600">{actionError}</div>}
+                                    </div>
+                                );
+                            })()}
+
+                            {/* PDF Popup Viewer */}
+                            <PdfPopupViewer fileUrl={pdfUrl || ""} open={pdfOpen} onClose={() => setPdfOpen(false)} />
+                            <div className="flex gap-2 justify-end">
+                                <Button variant="outline" onClick={() => setDetail(null)}>
+                                    Tutup
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
+    );
+}

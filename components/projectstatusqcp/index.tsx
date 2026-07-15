@@ -23,6 +23,23 @@ import {
   historicalTableCell,
 } from "../projectstatus/shared";
 
+import {
+  Search,
+  CalendarIcon,
+  Eye,
+  Building2,
+  RotateCcw,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  FileText,
+  Download,
+  Upload,
+  List,
+  User,
+  Rows,
+} from "lucide-react";
+
 function useLoginNrp() {
   return React.useMemo(() => {
     try {
@@ -49,6 +66,8 @@ interface QcpProject {
   status?: string;
   step?: string;
   stepStatus?: string;
+  cost?: string | number;
+  costType?: string;
 }
 
 
@@ -70,6 +89,13 @@ function formatDate(dateStr?: string) {
     if (!Number.isNaN(d.getTime())) return format(d, "dd-MM-yyyy");
     return String(dateStr);
   }
+}
+
+function formatDisplayCost(val: any) {
+  if (val === undefined || val === null || val === "") return "-";
+  const num = Math.round(Number(String(val).replace(/,/g, ".")));
+  if (isNaN(num)) return "-";
+  return String(num).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
 export default function ProjectStatusQcp() {
@@ -155,6 +181,99 @@ export default function ProjectStatusQcp() {
     }
   }, []);
 
+  const [detailData, setDetailData] = useState<any | null>(null);
+  const [detailDataLoading, setDetailDataLoading] = useState(false);
+
+  const templateB64 = String(detailData?.documentTemplateBase64 ?? "").trim();
+  const hasTemplatePdf = !!templateB64;
+  const templateMime = hasTemplatePdf ? guessMimeFromBase64(templateB64) : "";
+  const ssB64 = hasTemplatePdf ? templateB64 : "";
+  const templateExt = templateMime.includes("pdf") ? ".pdf" : templateMime.includes("word") ? ".docx" : ".pdf";
+  const canViewForm = stepHistory.filter(s => s.status.toLowerCase() == "judul approved").length > 0;
+  const hasStepFile = stepHistory.some(s => !!s.file);
+
+  function openBase64InSmallWindow(base64Raw: string) {
+    const mime = guessMimeFromBase64(base64Raw);
+    const blob = base64ToBlob(base64Raw, mime);
+    const url = URL.createObjectURL(blob);
+
+    const width = 800;
+    const height = 600;
+    const left = window.screen.width / 2 - width / 2;
+    const top = window.screen.height / 2 - height / 2;
+
+    window.open(
+      url,
+      "_blank",
+      `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,status=no,toolbar=no,menubar=no,location=no`
+    );
+    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  }
+
+  function stripDataUrlPrefix(b64: string) {
+    const s = String(b64 ?? "").trim();
+    const idx = s.indexOf("base64,");
+    return idx >= 0 ? s.slice(idx + "base64,".length).trim() : s;
+  }
+
+  function guessMimeFromBase64(b64Raw: string) {
+    const b64 = stripDataUrlPrefix(b64Raw);
+    if (b64.startsWith("JVBERi0x")) return "application/pdf";
+    return "application/octet-stream";
+  }
+
+  function base64ToBlob(base64Raw: string, mime = "application/octet-stream") {
+    const base64 = stripDataUrlPrefix(base64Raw);
+
+    const sliceSize = 1024;
+    const byteChars = atob(base64);
+    const byteArrays: Uint8Array[] = [];
+
+    for (let offset = 0; offset < byteChars.length; offset += sliceSize) {
+      const slice = byteChars.slice(offset, offset + sliceSize);
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) byteNumbers[i] = slice.charCodeAt(i);
+      byteArrays.push(new Uint8Array(byteNumbers));
+    }
+
+    return new Blob(byteArrays, { type: mime });
+  }
+
+  function downloadBase64File(base64Raw: string, filename: string) {
+    const mime = guessMimeFromBase64(base64Raw);
+    const blob = base64ToBlob(base64Raw, mime);
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename || "document";
+    a.rel = "noopener";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  }
+
+  const handleViewSsPdf = useCallback(() => {
+    if (!hasTemplatePdf) return;
+    openBase64InSmallWindow(ssB64);
+  }, [hasTemplatePdf, ssB64]);
+
+  const handleDownloadSsPdf = useCallback(() => {
+    const lastStepWithFile = [...stepHistory].reverse().find(s => !!s.file);
+    if (lastStepWithFile?.file) {
+      const a = document.createElement("a");
+      a.href = lastStepWithFile.file;
+      a.download = "";
+      a.target = "_blank";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+  }, [stepHistory]);
+
+
   const handleUploadStepFile = useCallback(async () => {
     if (!detail || !selectedUploadFile) return;
     setActionError("");
@@ -192,9 +311,33 @@ export default function ProjectStatusQcp() {
   }, [detail, selectedUploadFile, loginNrp, fetchList]);
 
   // Handle open detail
-  const handleOpenDetail = (row: QcpProject) => {
+  const handleOpenDetail = async (row: QcpProject) => {
     setDetail(row);
-    if (row.itemKey) fetchStepHistory(row.itemKey);
+    setDetailData(null);
+    if (row.itemKey) {
+      fetchStepHistory(row.itemKey);
+      setDetailDataLoading(true);
+      try {
+        const resp = await fetch(API.QCP_RETRIEVE, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ItemKey: row.itemKey }),
+        });
+        const json = await resp.json();
+        if (json?.responseCode === 200 && json?.data) {
+          setDetailData(json.data);
+        }
+      } catch (err) {
+        console.error("Gagal load detail QCP", err);
+      } finally {
+        setDetailDataLoading(false);
+      }
+    }
+  };
+
+  const handleCloseDetail = () => {
+    setDetail(null);
+    setDetailData(null);
   };
 
   return (
@@ -256,7 +399,51 @@ export default function ProjectStatusQcp() {
                 </Badge>
                 <span>{detail.temaQccp ?? detail.itemKey ?? "-"}</span>
               </h2>
-              <Button onClick={() => setDetail(null)} variant="ghost">✕</Button>
+              <Button onClick={handleCloseDetail} variant="ghost">✕</Button>
+            </div>
+            <div className="mt-1 flex flex-wrap p-2 gap-2 justify-end">
+              <Button
+                className="shrink-0"
+                variant="outline"
+                size="sm"
+                onClick={handleViewSsPdf}
+                disabled={detailDataLoading || !canViewForm}
+                title={detailDataLoading ? "Loading template..." : (!hasTemplatePdf ? "documentTemplateBase64 belum tersedia." : undefined)}
+              >
+                {detailDataLoading ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <FileText className="w-4 h-4 mr-2" />
+                )}
+                View QCP Form (PDF)
+              </Button>
+
+              <Button
+                className="shrink-0"
+                variant="default"
+                size="sm"
+                onClick={handleDownloadSsPdf}
+                disabled={stepLoading || !hasStepFile}
+                title={stepLoading ? "Loading step history..." : (!hasStepFile ? "Belum ada dokumen step yang di-upload." : undefined)}
+              >
+                {stepLoading ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Download className="w-4 h-4 mr-2" />
+                )}
+                Download Final QCP
+              </Button>
+
+              {/* {String(selectedProject?.status).toLowerCase() === 'reject by leader'.toLowerCase() && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="ml-2"
+                              onClick={() => handleOpenEdit(selectedProject)}
+                            >
+                              Revise Data
+                            </Button>
+                          )} */}
             </div>
             <div className="p-6 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -299,6 +486,19 @@ export default function ProjectStatusQcp() {
                 <div>
                   <div className="text-xs text-muted-foreground">Langkah Terakhir</div>
                   <div>{detail.step ?? "-"}</div>
+                </div>
+                <div>
+                  <div className="text-xs text-muted-foreground">Cost ( in USD )</div>
+                  <div>
+                    {(() => {
+                      const val = detailData?.cost ?? detailData?.Cost ?? detail?.cost ?? detail?.Cost;
+                      return val ? formatDisplayCost(val) : "-";
+                    })()}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs text-muted-foreground">Cost Type</div>
+                  <div>{detailData?.costType ?? detailData?.CostType ?? detail?.costType ?? detail?.CostType ?? "-"}</div>
                 </div>
               </div>
 

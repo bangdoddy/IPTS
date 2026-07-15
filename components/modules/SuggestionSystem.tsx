@@ -102,7 +102,7 @@ interface SuggestionSystemProps {
 // =====================================================
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 const STATUS_DEFAULT = "Review by leader";
-const REDIRECT_AFTER_SUCCESS = "/project-status-ss";
+const REDIRECT_AFTER_SUCCESS = "/trackingSS";
 
 const BENEFIT_ITEMS: Array<{ key: BenefitKey; label: string }> = [
   { key: "menciptakan", label: "Menciptakan" },
