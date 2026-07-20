@@ -9,7 +9,7 @@ import { Alert, AlertDescription } from '../ui/alert';
 import { ModuleLayout } from '../layout/ModuleLayout';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import SelectReact from "react-select";
-import { API } from "../../config";
+import { API, CONFIG } from "../../config";
 
 interface QualityControlCircleProps {
   user: any;
@@ -134,6 +134,12 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
   const [loadingEmployeesSuperior, setLoadingEmployeesSuperior] = useState(false);
   const [loadingKlasifikasi, setLoadingKlasifikasi] = useState(false);
   const [loadingOrg, setLoadingOrg] = useState(false);
+  const [isDepartmentEditable, setIsDepartmentEditable] = useState(false);
+  const [masterDepartments, setMasterDepartments] = useState<string[]>([]);
+  const [masterDepartmentsLoading, setMasterDepartmentsLoading] = useState(false);
+  const [isSectionEditable, setIsSectionEditable] = useState(false);
+  const [masterSections, setMasterSections] = useState<string[]>([]);
+  const [masterSectionsLoading, setMasterSectionsLoading] = useState(false);
 
   const retrieveAbortRef = useRef<AbortController | null>(null);
   const [formData, setFormData] = useState<FormState>({
@@ -272,6 +278,56 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
     fetchKlasifikasi();
     return () => ctrl.abort();
   }, []);
+
+  useEffect(() => {
+    const ctrl = new AbortController();
+    (async () => {
+      try {
+        setMasterDepartmentsLoading(true);
+        const url = `${CONFIG.apiBaseUrl}/api/master/masterdata`;
+        const res = await fetch(url, { method: "GET", credentials: "include", signal: ctrl.signal });
+        const json = await res.json().catch(() => ({}));
+        const deptList = Array.isArray(json?.departmentList) ? json.departmentList : [];
+        const names = deptList
+          .map((d: any) => safeStr(d?.departmentName ?? d?.DepartmentName ?? d?.name ?? d?.Name, ""))
+          .filter(Boolean);
+        setMasterDepartments(Array.from(new Set(names)).sort((a, b) => a.localeCompare(b)));
+      } catch (e: any) {
+        if (e?.name === "AbortError") return;
+        setMasterDepartments([]);
+      } finally {
+        setMasterDepartmentsLoading(false);
+      }
+    })();
+    return () => ctrl.abort();
+  }, []);
+
+  const fetchMasterSections = useCallback(async (signal?: AbortSignal) => {
+    try {
+      setMasterSectionsLoading(true);
+      const url = `${API.MASTER_SECTION}?pageSize=1000`;
+      const res = await fetch(url, { method: "GET", credentials: "include", signal });
+      const json = await res.json().catch(() => ({}));
+      const dataObj = json?.data ?? json;
+      const secList = Array.isArray(dataObj?.items ?? dataObj?.Items) ? (dataObj.items ?? dataObj.Items) : [];
+      const names = secList
+        .map((s: any) => safeStr(s?.sectionName ?? s?.SectionName ?? s?.Name ?? s?.name, ""))
+        .filter(Boolean);
+      setMasterSections(Array.from(new Set(names)).sort((a, b) => a.localeCompare(b)));
+    } catch (e: any) {
+      if (e?.name === "AbortError") return;
+      setMasterSections([]);
+    } finally {
+      setMasterSectionsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const ctrl = new AbortController();
+    fetchMasterSections(ctrl.signal);
+    return () => ctrl.abort();
+  }, [fetchMasterSections]);
+
   const selectedEmployee = useMemo(
     () => employeeOptionsCreator.find((o) => o.value === formData.nrpSelected) ?? null,
     [employeeOptionsCreator, formData.nrpSelected]
@@ -279,20 +335,26 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
   const handleEmployeeSelect = useCallback(
     async (opt: EmployeeOption | null) => {
       const nrp = opt?.value ?? "";
-      const nama = safeStr(opt?.raw?.NAMA, "");
       const jobsite = safeStr(opt?.raw?.JOBSITE, "");
 
       setValidationError("");
 
       if (!nrp) {
         retrieveAbortRef.current?.abort();
+        setIsDepartmentEditable(false);
+        setIsSectionEditable(false);
+        setFormData(prev => ({
+          ...prev,
+          nrpSelected: "",
+          CreatedBy: "",
+          lokasi: "",
+          department: "",
+          section: "",
+        }));
         return;
       }
 
-      // if (nama) setField("submittedByName", nama);
-
       try {
-
         retrieveAbortRef.current?.abort();
         const ctrl = new AbortController();
         retrieveAbortRef.current = ctrl;
@@ -320,15 +382,22 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
           const row = parseEmployeeRetrieve(json);
           console.log("Employee retrieve result:", { json, row });
           if (!row) throw new Error("Data employee tidak ditemukan.");
+
+          const creatorDept = safeStr(row?.department, "");
+          const isDeptEmpty = !creatorDept;
+          setIsDepartmentEditable(isDeptEmpty);
+
+          const creatorSection = safeStr(row?.section, "");
+          const isSectionEmpty = !creatorSection;
+          setIsSectionEditable(isSectionEmpty);
+
           setFormData(prev => ({
             ...prev,
             nrpSelected: nrp,
             CreatedBy: nrp,
             lokasi: jobsite,
-            department: safeStr(row?.department, prev.department),
-            section: safeStr(row?.section, prev.section),
-            // CreatedBy: nrp,
-            // CreatedBy: nrp,
+            department: creatorDept,
+            section: creatorSection,
           }));
 
         } finally {
@@ -337,11 +406,10 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
       } catch (err: any) {
         if (err?.name === "AbortError") return;
         console.error(err);
-        // setOrgFields(null);
         setValidationError(err?.message ?? "Gagal retrieve data employee.");
       }
     },
-    [user]
+    []
   );
 
   const [validationError, setValidationError] = useState('');
@@ -671,14 +739,34 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="department" className="text-xs sm:text-sm">3. Department *</Label>
-                    <Input
-                      id="department"
-                      value={formData.department}
-                      readOnly
-                      required
-                      className="text-sm"
-                      placeholder="Department akan terisi otomatis"
-                    />
+                    {isDepartmentEditable ? (
+                      <SelectReact<{ value: string; label: string }, false>
+                        inputId="department"
+                        isClearable
+                        isLoading={masterDepartmentsLoading}
+                        options={masterDepartments.map(dept => ({ value: dept, label: dept }))}
+                        placeholder="Pilih Department"
+                        value={formData.department ? { value: formData.department, label: formData.department } : null}
+                        onChange={(opt) => setFormData({ ...formData, department: opt?.value || "" })}
+                        className="text-sm"
+                        classNamePrefix="rs"
+                        styles={{
+                          control: (base) => ({ ...base, minHeight: 36, borderRadius: 6 }),
+                          valueContainer: (base) => ({ ...base, padding: "0 10px" }),
+                          input: (base) => ({ ...base, margin: 0, padding: 0 }),
+                          indicatorsContainer: (base) => ({ ...base, height: 36 }),
+                        }}
+                      />
+                    ) : (
+                      <Input
+                        id="department"
+                        value={formData.department}
+                        readOnly
+                        required
+                        className="text-sm"
+                        placeholder="Department akan terisi otomatis"
+                      />
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -706,15 +794,34 @@ export function QualityControlCircle({ user, onBack, onSubmit }: QualityControlC
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="section" className="text-xs sm:text-sm">5. Section *</Label>
-                    <Input
-                      id="section"
-                      value={formData.section}
-                      onChange={(e) => setFormData({ ...formData, section: e.target.value })}
-                      placeholder="e.g., Talent Management & ERP & Integration System"
-                      required
-                      readOnly
-                      className="text-sm"
-                    />
+                    {isSectionEditable ? (
+                      <SelectReact<{ value: string; label: string }, false>
+                        inputId="section"
+                        isClearable
+                        isLoading={masterSectionsLoading}
+                        options={masterSections.map(sec => ({ value: sec, label: sec }))}
+                        placeholder="Pilih Section"
+                        value={formData.section ? { value: formData.section, label: formData.section } : null}
+                        onChange={(opt) => setFormData({ ...formData, section: opt?.value || "" })}
+                        className="text-sm"
+                        classNamePrefix="rs"
+                        styles={{
+                          control: (base) => ({ ...base, minHeight: 36, borderRadius: 6 }),
+                          valueContainer: (base) => ({ ...base, padding: "0 10px" }),
+                          input: (base) => ({ ...base, margin: 0, padding: 0 }),
+                          indicatorsContainer: (base) => ({ ...base, height: 36 }),
+                        }}
+                      />
+                    ) : (
+                      <Input
+                        id="section"
+                        value={formData.section}
+                        readOnly
+                        required
+                        className="text-sm"
+                        placeholder="Section akan terisi otomatis"
+                      />
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="namaGroupQCCP" className="text-xs sm:text-sm">6. Nama Group QCC *</Label>

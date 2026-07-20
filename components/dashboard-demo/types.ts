@@ -58,6 +58,7 @@ export type Project = {
   // common fields
   judulSS: string;
   pembuatSS: string;
+  tahun: string;
   status: AnyStatus;
   submittedDate: Date | string;
   step?: number | string;

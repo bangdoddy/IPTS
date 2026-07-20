@@ -284,7 +284,7 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
   }, []);
 
   const handleSelectDepartment = (dept: string) => {
-    if (!lockedDepartment) {
+    if (!formData.nrpSelected) {
       setValidationError('Pilih Pembuat Lokasi terlebih dahulu.');
       return;
     }
@@ -354,13 +354,18 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
       const jobsite = safeStr(opt?.raw?.JOBSITE, "");
 
       if (!nrp) {
+        const oldLocked = lockedDepartment;
         setLockedDepartment("");
-        setFormData((prev) => ({
-          ...prev,
-          nrpSelected: "",
-          lokasi: "",
-          section: "",
-        }));
+        setFormData((prev) => {
+          const existing = Array.isArray(prev.department) ? prev.department : [];
+          return {
+            ...prev,
+            nrpSelected: "",
+            lokasi: "",
+            section: "",
+            department: existing.filter((d) => d && d !== oldLocked),
+          };
+        });
         return;
       }
 
@@ -370,10 +375,11 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
         const creatorDept = safeStr(row?.department, "");
         const creatorSection = safeStr(row?.section, "");
 
+        const oldLocked = lockedDepartment;
         setLockedDepartment(creatorDept);
         setFormData((prev) => {
           const existing = Array.isArray(prev.department) ? prev.department : [];
-          const rest = existing.filter((d) => d && d !== creatorDept);
+          const rest = existing.filter((d) => d && d !== oldLocked && d !== creatorDept);
           const deptArr = creatorDept ? [creatorDept, ...rest] : rest;
 
           return {
@@ -381,7 +387,7 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
             nrpSelected: nrp,
             lokasi: jobsite,
             section: creatorSection,
-            department: deptArr.length ? deptArr : prev.department,
+            department: deptArr,
           };
         });
 
@@ -392,7 +398,7 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
         setLoadingOrg(false);
       }
     },
-    [retrieveEmployeeOrg]
+    [retrieveEmployeeOrg, lockedDepartment]
   );
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -624,7 +630,7 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
                         <Input
                           id="department"
                           placeholder={
-                            !lockedDepartment
+                            !formData.nrpSelected
                               ? "Pilih Pembuat Lokasi terlebih dahulu"
                               : formData.department.length >= 2
                                 ? "Maksimal 2 department"
@@ -635,7 +641,7 @@ export function QualityControlProject({ user, onBack, onSubmit }: QualityControl
                                     : "Add more departments..."
                           }
                           value={departmentSearch}
-                          disabled={!lockedDepartment || formData.department.length >= 2 || masterDepartmentsLoading}
+                          disabled={!formData.nrpSelected || formData.department.length >= 2 || masterDepartmentsLoading}
                           onChange={(e) => {
                             setDepartmentSearch(e.target.value);
                             setShowDepartmentSuggestions(true);
